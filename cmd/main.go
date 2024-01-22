@@ -1,36 +1,37 @@
-// main.go
-
 package main
 
 import (
+	"admin-panel/internal/config"
+	"admin-panel/internal/delivery/v1/middleware"
+	"admin-panel/internal/delivery/v1/routers"
+	repository "admin-panel/internal/repository/postgres"
+	"admin-panel/internal/service"
+	"admin-panel/pkg/database"
+	utils "admin-panel/pkg/lib/utils"
+	"admin-panel/pkg/logger"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"user-admin/internal/config"
-	"user-admin/internal/delivery/v1/middleware"
-	"user-admin/internal/delivery/v1/routers"
-	repository "user-admin/internal/repository/postgres"
-	"user-admin/internal/service"
-	"user-admin/pkg/database"
-	utils "user-admin/pkg/lib/utils"
-	"user-admin/pkg/logger"
+
+	httpSwagger "github.com/swaggo/http-swagger"
+
+	_ "admin-panel/docs"
+
+	_ "github.com/swaggo/files"
 
 	"github.com/go-chi/chi/v5"
 )
 
-// @title Admin Panel
-// version 1.0
-// description API Server for Admin Panel
-
-// @host localhost:8081
-// @BasePath /
-
-// @securityDefinitions.apiKey ApiKeyAuth
-// @in header
-// @name Authorization
-
+// @title						Admin Panel
+// @version				     	1.0
+// @description			    	API Server for Admin Panel
+// @host						localhost:8081
+// @BasePath					/
+// @securityDefinitions.apiKey	ApiKeyAuth
+// @in							header
+// @name						Authorization
 func main() {
 	cfg := config.LoadConfig()
 
@@ -47,6 +48,10 @@ func main() {
 	defer db.Close()
 
 	mainRouter := chi.NewRouter()
+
+	mainRouter.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8081/swagger/doc.json"),
+	))
 
 	authMiddlewareForAdmin := middleware.AuthMiddleware(cfg, []string{"admin"})
 	authMiddlewareForSuperAdmin := middleware.AuthMiddleware(cfg, []string{"super_admin"})

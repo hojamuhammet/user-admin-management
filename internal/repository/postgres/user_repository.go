@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"admin-panel/internal/domain"
+	"admin-panel/pkg/lib/utils"
 	"context"
 	"database/sql"
 	"fmt"
@@ -8,8 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"user-admin/internal/domain"
-	"user-admin/pkg/lib/utils"
 )
 
 type PostgresUserRepository struct {

@@ -1,12 +1,12 @@
 package utils
 
 import (
+	"admin-panel/internal/domain"
 	"database/sql"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strings"
-	"user-admin/internal/domain"
 )
 
 func Err(err error) slog.Attr {

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"user-admin/internal/domain"
+	"admin-panel/internal/domain"
 )
 
 type AdminAuthRepository interface {

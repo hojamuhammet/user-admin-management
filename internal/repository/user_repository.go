@@ -1,6 +1,6 @@
 package repository
 
-import "user-admin/internal/domain"
+import "admin-panel/internal/domain"
 
 type UserRepository interface {
 	GetAllUsers(page, pageSize int) (*domain.UsersList, error)

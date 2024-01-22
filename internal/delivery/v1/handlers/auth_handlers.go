@@ -1,15 +1,15 @@
 package handlers
 
 import (
+	"admin-panel/internal/domain"
+	"admin-panel/internal/service"
+	"admin-panel/pkg/lib/errors"
+	"admin-panel/pkg/lib/status"
+	"admin-panel/pkg/lib/utils"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strings"
-	"user-admin/internal/domain"
-	"user-admin/internal/service"
-	"user-admin/pkg/lib/errors"
-	"user-admin/pkg/lib/status"
-	"user-admin/pkg/lib/utils"
 
 	"github.com/go-chi/chi/v5"
 )

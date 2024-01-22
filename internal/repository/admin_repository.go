@@ -1,6 +1,6 @@
 package repository
 
-import "user-admin/internal/domain"
+import "admin-panel/internal/domain"
 
 type AdminRepository interface {
 	GetAllAdmins(page, pageSize int) (*domain.AdminsList, error)

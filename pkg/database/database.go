@@ -1,11 +1,11 @@
 package database
 
 import (
+	"admin-panel/internal/config"
+	"admin-panel/pkg/lib/utils"
 	"database/sql"
 	"fmt"
 	"log/slog"
-	"user-admin/internal/config"
-	"user-admin/pkg/lib/utils"
 
 	_ "github.com/lib/pq" // init postgresql driver
 )
@@ -16,7 +16,7 @@ type Database struct {
 
 func InitDB(cfg *config.Config) (*Database, error) {
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBname, cfg.Sslmode)
-	
+
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		slog.Error("failed to initialize database: %v", utils.Err(err))

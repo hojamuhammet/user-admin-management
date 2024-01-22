@@ -1,9 +1,9 @@
 package config
 
 import (
+	"admin-panel/pkg/lib/utils"
 	"log"
 	"time"
-	"user-admin/pkg/lib/utils"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )

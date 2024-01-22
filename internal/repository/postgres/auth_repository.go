@@ -1,14 +1,14 @@
 package repository
 
 import (
+	"admin-panel/internal/domain"
+	"admin-panel/pkg/lib/utils"
 	"database/sql"
 	"fmt"
 	"log/slog"
 	"time"
-	"user-admin/internal/domain"
-	"user-admin/pkg/lib/utils"
 
-	"user-admin/internal/config"
+	"admin-panel/internal/config"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"

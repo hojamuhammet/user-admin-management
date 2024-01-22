@@ -1,10 +1,10 @@
 package service
 
 import (
+	"admin-panel/internal/domain"
+	"admin-panel/internal/repository"
+	"admin-panel/pkg/lib/utils"
 	"log/slog"
-	"user-admin/internal/domain"
-	"user-admin/internal/repository"
-	"user-admin/pkg/lib/utils"
 
 	"golang.org/x/crypto/bcrypt"
 )

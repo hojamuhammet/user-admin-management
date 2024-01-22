@@ -1,8 +1,8 @@
 package service
 
 import (
-	"user-admin/internal/domain"
-	"user-admin/internal/repository"
+	"admin-panel/internal/domain"
+	"admin-panel/internal/repository"
 )
 
 type UserService struct {

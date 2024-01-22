@@ -1,8 +1,8 @@
 package routers
 
 import (
-	"user-admin/internal/delivery/v1/handlers"
-	"user-admin/internal/service"
+	"admin-panel/internal/delivery/v1/handlers"
+	"admin-panel/internal/service"
 
 	"github.com/go-chi/chi/v5"
 )

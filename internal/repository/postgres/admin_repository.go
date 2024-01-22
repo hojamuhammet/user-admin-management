@@ -1,14 +1,14 @@
 package repository
 
 import (
+	"admin-panel/internal/domain"
+	"admin-panel/pkg/lib/utils"
 	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
 	"strconv"
 	"strings"
-	"user-admin/internal/domain"
-	"user-admin/pkg/lib/utils"
 
 	"golang.org/x/crypto/bcrypt"
 )
