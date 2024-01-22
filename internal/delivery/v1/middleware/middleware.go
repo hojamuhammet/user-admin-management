@@ -1,14 +1,14 @@
 package middleware
 
 import (
+	"admin-panel/internal/config"
+	"admin-panel/pkg/lib/errors"
+	"admin-panel/pkg/lib/status"
+	"admin-panel/pkg/lib/utils"
 	"context"
 	"fmt"
 	"net/http"
 	"strings"
-	"user-admin/internal/config"
-	"user-admin/pkg/lib/errors"
-	"user-admin/pkg/lib/status"
-	"user-admin/pkg/lib/utils"
 
 	"log/slog"
 
