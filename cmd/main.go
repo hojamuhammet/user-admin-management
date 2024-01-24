@@ -15,12 +15,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	httpSwagger "github.com/swaggo/http-swagger"
-
-	_ "admin-panel/docs"
-
-	_ "github.com/swaggo/files"
-
 	"github.com/go-chi/chi/v5"
 )
 
@@ -40,10 +34,6 @@ func main() {
 	defer db.Close()
 
 	mainRouter := chi.NewRouter()
-
-	mainRouter.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8081/swagger/doc.json"),
-	))
 
 	authMiddlewareForAdmin := middleware.AuthMiddleware(cfg, []string{"admin"})
 	authMiddlewareForSuperAdmin := middleware.AuthMiddleware(cfg, []string{"super_admin"})
