@@ -24,14 +24,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// @title						Admin Panel
-// @version				     	1.0
-// @description			    	API Server for Admin Panel
-// @host						localhost:8081
-// @BasePath					/
-// @securityDefinitions.apiKey	ApiKeyAuth
-// @in							header
-// @name						Authorization
 func main() {
 	cfg := config.LoadConfig()
 
