@@ -86,7 +86,7 @@ func main() {
 
 	userRepository := repository.NewPostgresUserRepository(db.GetDB())
 	userService := service.NewUserService(userRepository)
-	routers.SetupUserRoutes(userRouter, userService) // Set up user routes
+	routers.SetupUserRoutes(userRouter, userService)
 
 	// Handling graceful shutdown
 	stop := make(chan os.Signal, 1)
