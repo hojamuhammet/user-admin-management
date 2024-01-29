@@ -47,12 +47,8 @@ func (h *UserHandler) GetAllUsersHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	response := struct {
-		Users       *domain.UsersList `json:"users"`
-		CurrentPage int               `json:"currentPage"`
-		PrevPage    int               `json:"previousPage"`
-		NextPage    int               `json:"nextPage"`
-	}{
+	response := domain.GetAllUsersResponse{
+
 		Users:       users,
 		CurrentPage: page,
 		PrevPage:    previousPage,

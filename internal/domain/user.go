@@ -18,6 +18,13 @@ type UsersList struct {
 	Users []CommonUserResponse `json:"users"`
 }
 
+type GetAllUsersResponse struct {
+	Users       *UsersList `json:"users"`
+	CurrentPage int        `json:"currentPage"`
+	PrevPage    int        `json:"previousPage"`
+	NextPage    int        `json:"nextPage"`
+}
+
 // CommonUserResponse captures the common properties for GetUserResponse, CreateUserResponse and UpdateUserResponse
 type CommonUserResponse struct {
 	ID               int32     `json:"id"`
