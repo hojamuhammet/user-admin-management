@@ -339,7 +339,7 @@ func (r PostgresUserRepository) DeleteUser(id int32) error {
 	}
 
 	if !exists {
-		return fmt.Errorf("user with ID %d not found", id)
+		return domain.ErrUserNotFound
 	}
 
 	stmt, err := r.DB.Prepare(`DELETE FROM users WHERE id = $1`)
@@ -367,7 +367,7 @@ func (r *PostgresUserRepository) BlockUser(id int32) error {
 	}
 
 	if !exists {
-		return fmt.Errorf("user with ID %d not found", id)
+		return domain.ErrUserNotFound
 	}
 
 	stmt, err := r.DB.Prepare("UPDATE users SET blocked = true WHERE id = $1")
@@ -387,6 +387,17 @@ func (r *PostgresUserRepository) BlockUser(id int32) error {
 }
 
 func (r *PostgresUserRepository) UnblockUser(id int32) error {
+	var exists bool
+	err := r.DB.QueryRow(`SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)`, id).Scan(&exists)
+	if err != nil {
+		slog.Error("error checking user existence: %v", utils.Err(err))
+		return err
+	}
+
+	if !exists {
+		return domain.ErrUserNotFound
+	}
+
 	stmt, err := r.DB.Prepare("UPDATE users SET blocked = false WHERE id = $1")
 	if err != nil {
 		slog.Error("error preparing query: %v", utils.Err(err))

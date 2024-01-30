@@ -201,10 +201,14 @@ func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = h.UserService.DeleteUser(int32(id))
-	if err != nil {
+	if err := h.UserService.DeleteUser(int32(id)); err != nil {
+		if err == domain.ErrUserNotFound {
+			utils.RespondWithErrorJSON(w, status.NotFound, errors.UserNotFound)
+			return
+		}
+
 		slog.Error("Error deleting user: ", utils.Err(err))
-		utils.RespondWithErrorJSON(w, status.InternalServerError, fmt.Sprintf("error deleting user: %s", err))
+		utils.RespondWithErrorJSON(w, status.InternalServerError, fmt.Sprintf("Error deleting user: %s", err))
 		return
 	}
 
@@ -233,10 +237,14 @@ func (h *UserHandler) BlockUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.UserService.BlockUser(int32(id))
-	if err != nil {
+	if err := h.UserService.BlockUser(int32(id)); err != nil {
+		if err == domain.ErrUserNotFound {
+			utils.RespondWithErrorJSON(w, status.NotFound, errors.UserNotFound)
+			return
+		}
+
 		slog.Error("Error blocking user: ", utils.Err(err))
-		utils.RespondWithErrorJSON(w, status.InternalServerError, fmt.Sprintf("error blocking user: %s", err))
+		utils.RespondWithErrorJSON(w, status.InternalServerError, fmt.Sprintf("Error blocking user: %s", err))
 		return
 	}
 
@@ -265,10 +273,14 @@ func (h *UserHandler) UnblockUserHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = h.UserService.UnblockUser(int32(id))
-	if err != nil {
-		slog.Error("Error unblocking user by ID: ", utils.Err(err))
-		utils.RespondWithErrorJSON(w, status.InternalServerError, fmt.Sprintf("error unblocking user: %s", err))
+	if err := h.UserService.UnblockUser(int32(id)); err != nil {
+		if err == domain.ErrUserNotFound {
+			utils.RespondWithErrorJSON(w, status.NotFound, errors.UserNotFound)
+			return
+		}
+
+		slog.Error("Error unblocking user: ", utils.Err(err))
+		utils.RespondWithErrorJSON(w, status.InternalServerError, fmt.Sprintf("Error unblocking user: %s", err))
 		return
 	}
 
