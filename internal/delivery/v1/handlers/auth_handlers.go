@@ -73,7 +73,7 @@ func (h *AdminAuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 // @Summary Refresh Tokens
-// @Description Refreshes access and refresh tokens using a valid refresh token.
+// @Description Provide with your refresh token in header to make new refresh and access token.
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -104,7 +104,7 @@ func (h *AdminAuthHandler) RefreshTokensHandler(w http.ResponseWriter, r *http.R
 }
 
 // @Summary Admin Logout
-// @Description Logs out an admin by invalidating the provided refresh token.
+// @Description Provide your refresh token in body of request to log out an admin by invalidating the provided refresh token.
 // @Tags auth
 // @Accept json
 // @Produce json

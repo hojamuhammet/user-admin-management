@@ -811,7 +811,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Logs out an admin by invalidating the provided refresh token.",
+                "description": "Provide your refresh token in body of request to log out an admin by invalidating the provided refresh token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -868,7 +868,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Refreshes access and refresh tokens using a valid refresh token.",
+                "description": "Provide with your refresh token in header to make new refresh and access token.",
                 "consumes": [
                     "application/json"
                 ],
