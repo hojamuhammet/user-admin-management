@@ -85,6 +85,10 @@ func (r *PostgresAdminRepository) GetAdminByID(id int32) (*domain.CommonAdminRes
 		&admin.Role,
 	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrAdminNotFound
+		}
+
 		slog.Error("error scanning admin row: %v", utils.Err(err))
 		return nil, err
 	}
