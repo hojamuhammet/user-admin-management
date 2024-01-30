@@ -18,7 +18,7 @@ type UsersList struct {
 	Users []CommonUserResponse `json:"users"`
 }
 
-type GetAllUsersResponse struct {
+type UsersListResponse struct {
 	Users       *UsersList `json:"users"`
 	CurrentPage int        `json:"currentPage"`
 	PrevPage    int        `json:"previousPage"`
