@@ -15,9 +15,23 @@ import (
 	"os/signal"
 	"syscall"
 
+	_ "admin-panel/docs"
+
 	"github.com/go-chi/chi/v5"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+// @title Admin Panel API
+// @version 1.0
+// @description API for Admin Panel.
+// @description This API provides endpoints to manage users, administrators, and authentication in the admin panel.
+// @host localhost:8081
+// @BasePath /
+// @schemes http
+// @securityDefinitions.apikey jwt
+// @in header
+// @name Authorization
 func main() {
 	cfg := config.LoadConfig()
 
@@ -38,6 +52,16 @@ func main() {
 	authMiddlewareForAdmin := middleware.AuthMiddleware(cfg, []string{"admin"})
 	authMiddlewareForSuperAdmin := middleware.AuthMiddleware(cfg, []string{"super_admin"})
 
+	// Authentication routes
+	authRouter := chi.NewRouter()
+	mainRouter.Route("/auth", func(r chi.Router) {
+		r.Mount("/", authRouter)
+	})
+
+	adminAuthRepository := repository.NewPostgresAdminAuthRepository(db.GetDB(), cfg.JWT)
+	adminAuthService := service.NewAdminAuthService(adminAuthRepository)
+	routers.SetupAuthRoutes(authRouter, adminAuthService)
+
 	// Admin routes
 	adminRouter := chi.NewRouter()
 	adminRouter.Use(authMiddlewareForSuperAdmin) // Apply auth middleware to admin routes
@@ -49,16 +73,6 @@ func main() {
 	adminService := service.NewAdminService(adminRepository)
 	routers.SetupAdminRoutes(adminRouter, adminService)
 
-	// Authentication routes
-	authRouter := chi.NewRouter()
-	mainRouter.Route("/auth", func(r chi.Router) {
-		r.Mount("/", authRouter)
-	})
-
-	adminAuthRepository := repository.NewPostgresAdminAuthRepository(db.GetDB(), cfg.JWT)
-	adminAuthService := service.NewAdminAuthService(adminAuthRepository)
-	routers.SetupAuthRoutes(authRouter, adminAuthService)
-
 	// User routes
 	userRouter := chi.NewRouter()
 	userRouter.Use(authMiddlewareForAdmin)
@@ -69,6 +83,10 @@ func main() {
 	userRepository := repository.NewPostgresUserRepository(db.GetDB())
 	userService := service.NewUserService(userRepository)
 	routers.SetupUserRoutes(userRouter, userService)
+
+	mainRouter.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8081/swagger/doc.json"),
+	))
 
 	// Handling graceful shutdown
 	stop := make(chan os.Signal, 1)
