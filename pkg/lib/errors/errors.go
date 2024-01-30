@@ -17,6 +17,7 @@ const (
 	InvalidRequestBody       = "Invalid request body"
 	InvalidPhoneNumberFormat = "Invalid phone number format"
 	SearchQueryRequired      = "Search query is required"
+	UserNotFound             = "User not found"
 )
 
 // middleware

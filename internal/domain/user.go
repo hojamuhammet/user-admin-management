@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"time"
 )
 
@@ -68,3 +69,8 @@ type UpdateUserRequest struct {
 }
 
 type UpdateUserResponse CommonUserResponse
+
+var (
+	ErrUserNotFound      = errors.New("user not found")
+	ErrUserAlreadyExists = errors.New("user already exists")
+)
