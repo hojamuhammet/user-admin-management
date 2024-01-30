@@ -21,6 +21,17 @@ type AdminHandler struct {
 	Router       chi.Router
 }
 
+// @Summary Get all admins
+// @Description Retrieves a list of all administrators with pagination.
+// @Tags admins
+// @Accept json
+// @Produce json
+// @Security jwt
+// @Param page query int false "Page number (default: 1)"
+// @Param pageSize query int false "Page size (default: 8)"
+// @Success 200 {object} domain.AdminListResponse
+// @Failure 500 {string} string
+// @Router /api/admin [get]
 func (h *AdminHandler) GetAllAdminsHandler(w http.ResponseWriter, r *http.Request) {
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
 	if err != nil || page <= 0 {
@@ -48,12 +59,7 @@ func (h *AdminHandler) GetAllAdminsHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	response := struct {
-		Admins      *domain.AdminsList `json:"admins"`
-		CurrentPage int                `json:"currentPage"`
-		PrevPage    int                `json:"previousPage"`
-		NextPage    int                `json:"nextPage"`
-	}{
+	response := domain.AdminListResponse{
 		Admins:      admins,
 		CurrentPage: page,
 		PrevPage:    previousPage,
@@ -63,16 +69,34 @@ func (h *AdminHandler) GetAllAdminsHandler(w http.ResponseWriter, r *http.Reques
 	utils.RespondWithJSON(w, status.OK, response)
 }
 
+// @Summary Get admin by ID
+// @Description Retrieves an administrator by ID.
+// @Tags admins
+// @Accept json
+// @Produce json
+// @Security jwt
+// @Param id path int true "Admin ID"
+// @Success 200 {object} domain.Admin
+// @Failure 400 {string} string
+// @Failure 404 {string} string
+// @Failure 500 {string} string
+// @Router /api/admin/{id} [get]
 func (h *AdminHandler) GetAdminByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		utils.RespondWithErrorJSON(w, status.BadRequest, "Invalid ID")
+		utils.RespondWithErrorJSON(w, status.BadRequest, errors.InvalidID)
 		return
 	}
 
 	admin, err := h.AdminService.GetAdminByID(int32(id))
 	if err != nil {
+		if err.Error() == "admin not found" {
+			utils.RespondWithErrorJSON(w, status.NotFound, errors.AdminNotFound)
+			return
+		}
+
+		// Other internal server error
 		slog.Error("Error retrieving admin: ", utils.Err(err))
 		utils.RespondWithErrorJSON(w, status.InternalServerError, "Error retrieving admin")
 		return
@@ -82,6 +106,18 @@ func (h *AdminHandler) GetAdminByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(admin)
 }
 
+// @Summary Create admin
+// @Description Creates a new administrator with the provided details.
+// @Tags admins
+// @Accept json
+// @Produce json
+// @Security jwt
+// @Param admin body domain.CreateAdminRequest true "Admin data"
+// @Success 201 {object} domain.Admin
+// @Failure 400 {string} string
+// @Failure 409 {string} string
+// @Failure 500 {string} string
+// @Router /api/admin [post]
 func (h *AdminHandler) CreateAdminHandler(w http.ResponseWriter, r *http.Request) {
 	var admin domain.CreateAdminRequest
 	err := json.NewDecoder(r.Body).Decode(&admin)
@@ -111,6 +147,18 @@ func (h *AdminHandler) CreateAdminHandler(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(createdAdmin)
 }
 
+// @Summary Update admin
+// @Description Updates an existing administrator with the provided data.
+// @Tags admins
+// @Accept json
+// @Produce json
+// @Security jwt
+// @Param id path int true "Admin ID"
+// @Param admin body domain.UpdateAdminRequest true "Updated admin data"
+// @Success 200 {object} domain.Admin
+// @Failure 400 {string} string
+// @Failure 500 {string} string
+// @Router /api/admin/{id} [put]
 func (h *AdminHandler) UpdateAdminHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -141,6 +189,18 @@ func (h *AdminHandler) UpdateAdminHandler(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(admin)
 }
 
+// @Summary Delete admin
+// @Description Deletes an administrator by their unique ID.
+// @Tags admins
+// @Accept json
+// @Produce json
+// @Security jwt
+// @Param id path int true "Admin ID"
+// @Success 200 {object} StatusMessage
+// @Failure 400 {string} string
+// @Failure 404 {string} string
+// @Failure 500 {string} string
+// @Router /api/admin/{id} [delete]
 func (h *AdminHandler) DeleteAdminHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -168,6 +228,19 @@ func (h *AdminHandler) DeleteAdminHandler(w http.ResponseWriter, r *http.Request
 	})
 }
 
+// @Summary Search admins
+// @Description Search administrators by query with pagination
+// @Tags admins
+// @Accept json
+// @Produce json
+// @Security jwt
+// @Param query query string true "Search query"
+// @Param page query int false "Page number (default: 1)"
+// @Param pageSize query int false "Page size (default: 8)"
+// @Success 200 {object} domain.AdminListResponse
+// @Failure 400 {string} string
+// @Failure 500 {string} string
+// @Router /api/admin/search [get]
 func (h *AdminHandler) SearchAdminsHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("query")
 	if query == "" {
@@ -199,12 +272,7 @@ func (h *AdminHandler) SearchAdminsHandler(w http.ResponseWriter, r *http.Reques
 
 	nextPage := page + 1
 
-	response := struct {
-		Admins      *domain.AdminsList `json:"admins"`
-		CurrentPage int                `json:"currentPage"`
-		PrevPage    int                `json:"previousPage"`
-		NextPage    int                `json:"nextPage"`
-	}{
+	response := domain.AdminListResponse{
 		Admins:      admins,
 		CurrentPage: page,
 		PrevPage:    previousPage,

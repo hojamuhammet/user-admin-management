@@ -20,6 +20,16 @@ type UserHandler struct {
 	Router      *chi.Mux
 }
 
+// @Summary Get all users
+// @Description Retrieves a list of all users with pagination.
+// @Tags users
+// @Produce json
+// @Param page query int false "Page number"
+// @Param pageSize query int false "Page size"
+// @Security ApiKeyAuth
+// @Success 200 {object} domain.UsersListResponse "Success"
+// @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
+// @Router /api/user [get]
 func (h *UserHandler) GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
 	if err != nil || page <= 0 {
@@ -47,7 +57,7 @@ func (h *UserHandler) GetAllUsersHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	response := domain.GetAllUsersResponse{
+	response := domain.UsersListResponse{
 
 		Users:       users,
 		CurrentPage: page,
@@ -58,6 +68,16 @@ func (h *UserHandler) GetAllUsersHandler(w http.ResponseWriter, r *http.Request)
 	utils.RespondWithJSON(w, status.OK, response)
 }
 
+// @Summary Get user by ID
+// @Description Retrieves a user by ID.
+// @Tags users
+// @Produce json
+// @Param id path int true "User ID"
+// @Security ApiKeyAuth
+// @Success 200 {object} domain.GetUserResponse "Success"
+// @Failure 400 {string} string "Bad Request: " + errors.InvalidID
+// @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
+// @Router /api/user/{id} [get]
 func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -77,6 +97,16 @@ func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(user)
 }
 
+// @Summary Create user
+// @Description Creates a new administrator with the provided details.
+// @Tags users
+// @Produce json
+// @Param request body domain.CreateUserRequest true "User creation request"
+// @Security ApiKeyAuth
+// @Success 201 {object} domain.CreateUserResponse "Created"
+// @Failure 400 {string} string "Bad Request: " + errors.InvalidRequestBody
+// @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
+// @Router /api/user [post]
 func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var createUserRequest domain.CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&createUserRequest)
@@ -102,6 +132,17 @@ func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 	json.NewEncoder(w).Encode(user)
 }
 
+// @Summary Update user
+// @Description Updates an existing user with the provided data.
+// @Tags users
+// @Produce json
+// @Param id path int true "User ID"
+// @Param request body domain.UpdateUserRequest true "User update request"
+// @Security ApiKeyAuth
+// @Success 200 {object} domain.UpdateUserResponse "Updated"
+// @Failure 400 {string} string "Bad Request: " + errors.InvalidID or errors.InvalidRequestBody
+// @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
+// @Router /api/user/{id} [put]
 func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -132,6 +173,16 @@ func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) 
 	json.NewEncoder(w).Encode(user)
 }
 
+// @Summary Delete user by ID
+// @Description Deletes a user by their unique ID.
+// @Tags users
+// @Produce json
+// @Param id path int true "User ID"
+// @Security ApiKeyAuth
+// @Success 200 {object} StatusMessage "Deleted"
+// @Failure 400 {string} string "Bad Request: " + errors.InvalidID
+// @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
+// @Router /api/user/{id} [delete]
 func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -153,6 +204,16 @@ func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
+// @Summary Block user by ID
+// @Description Blocks a user by their unique ID.
+// @Tags users
+// @Produce json
+// @Param id path int true "User ID"
+// @Security ApiKeyAuth
+// @Success 200 {object} StatusMessage "Blocked"
+// @Failure 400 {string} string "Bad Request: " + errors.InvalidID
+// @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
+// @Router /api/user/{id}/block [post]
 func (h *UserHandler) BlockUserHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -174,6 +235,16 @@ func (h *UserHandler) BlockUserHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// @Summary Unblock user by ID
+// @Description Unblocks a user by their unique ID.
+// @Tags users
+// @Produce json
+// @Param id path int true "User ID"
+// @Security ApiKeyAuth
+// @Success 200 {object} StatusMessage "Unblocked"
+// @Failure 400 {string} string "Bad Request: " + errors.InvalidID
+// @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
+// @Router /api/user/{id}/unblock [post]
 func (h *UserHandler) UnblockUserHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -195,6 +266,18 @@ func (h *UserHandler) UnblockUserHandler(w http.ResponseWriter, r *http.Request)
 	})
 }
 
+// @Summary Search users
+// @Description Search users by query with pagination
+// @Tags users
+// @Produce json
+// @Param query query string true "Search query"
+// @Param page query int false "Page number"
+// @Param pageSize query int false "Page size"
+// @Security ApiKeyAuth
+// @Success 200 {object} domain.UsersListResponse "Success"
+// @Failure 400 {string} string "Bad Request: " + errors.SearchQueryRequired
+// @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
+// @Router /api/user/search [get]
 func (h *UserHandler) SearchUsersHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("query")
 	if query == "" {
@@ -226,12 +309,8 @@ func (h *UserHandler) SearchUsersHandler(w http.ResponseWriter, r *http.Request)
 
 	nextPage := page + 1
 
-	response := struct {
-		Users       *domain.UsersList `json:"users"`
-		CurrentPage int               `json:"currentPage"`
-		PrevPage    int               `json:"previousPage"`
-		NextPage    int               `json:"nextPage"`
-	}{
+	response := domain.UsersListResponse{
+
 		Users:       users,
 		CurrentPage: page,
 		PrevPage:    previousPage,
