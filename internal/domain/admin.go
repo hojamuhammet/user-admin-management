@@ -36,6 +36,13 @@ type UpdateAdminRequest struct {
 	Role     string `json:"role"`
 }
 
+type AdminListResponse struct {
+	Admins      *AdminsList `json:"admins"`
+	CurrentPage int         `json:"currentPage"`
+	PrevPage    int         `json:"previousPage"`
+	NextPage    int         `json:"nextPage"`
+}
+
 type CommonAdminResponse struct {
 	ID       int32  `json:"id"`
 	Username string `json:"username"`
