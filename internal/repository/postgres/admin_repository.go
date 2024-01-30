@@ -194,6 +194,10 @@ func (r *PostgresAdminRepository) UpdateAdmin(request *domain.UpdateAdminRequest
 		&admin.Role,
 	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrAdminNotFound
+		}
+
 		slog.Error("error executing  query: %v", utils.Err(err))
 		return nil, err
 	}
@@ -210,7 +214,7 @@ func (r *PostgresAdminRepository) DeleteAdmin(id int32) error {
 	}
 
 	if !exists {
-		return fmt.Errorf("admin with ID %d not found", id)
+		return domain.ErrAdminNotFound
 	}
 
 	stmt, err := r.DB.Prepare(`DELETE FROM admins WHERE id = $1`)

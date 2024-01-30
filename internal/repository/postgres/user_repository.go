@@ -125,6 +125,9 @@ func (r *PostgresUserRepository) GetUserByID(id int32) (*domain.GetUserResponse,
 		&profilePhotoURL,
 	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrUserNotFound
+		}
 		slog.Error("error scanning user row: %v", utils.Err(err))
 		return nil, err
 	}

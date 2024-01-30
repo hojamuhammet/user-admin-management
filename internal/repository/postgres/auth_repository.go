@@ -116,7 +116,6 @@ func (r *PostgresAdminAuthRepository) GetAdminByUsername(username string) (*doma
 	err := row.Scan(&admin.ID, &admin.Username, &admin.Password, &admin.Role)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			slog.Error("Admin was not found")
 			return nil, domain.ErrAdminNotFound
 		}
 

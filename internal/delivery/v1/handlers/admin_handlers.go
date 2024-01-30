@@ -11,7 +11,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -96,7 +95,6 @@ func (h *AdminHandler) GetAdminByID(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Other internal server error
 		slog.Error("Error retrieving admin: ", utils.Err(err))
 		utils.RespondWithErrorJSON(w, status.InternalServerError, "Error retrieving admin")
 		return
@@ -157,6 +155,7 @@ func (h *AdminHandler) CreateAdminHandler(w http.ResponseWriter, r *http.Request
 // @Param admin body domain.UpdateAdminRequest true "Updated admin data"
 // @Success 200 {object} domain.Admin
 // @Failure 400 {string} string
+// @Failure 404 {string} string
 // @Failure 500 {string} string
 // @Router /api/admin/{id} [put]
 func (h *AdminHandler) UpdateAdminHandler(w http.ResponseWriter, r *http.Request) {
@@ -179,6 +178,11 @@ func (h *AdminHandler) UpdateAdminHandler(w http.ResponseWriter, r *http.Request
 
 	admin, err := h.AdminService.UpdateAdmin(&updateAdminRequest)
 	if err != nil {
+		if err == domain.ErrAdminNotFound {
+			utils.RespondWithErrorJSON(w, status.NotFound, errors.AdminNotFound)
+			return
+		}
+
 		slog.Error("Error updating admin: ", utils.Err(err))
 		utils.RespondWithErrorJSON(w, status.InternalServerError, fmt.Sprintf("error updating admin: %v", err))
 		return
@@ -210,14 +214,12 @@ func (h *AdminHandler) DeleteAdminHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := h.AdminService.DeleteAdmin(int32(id)); err != nil {
-		slog.Error("Error deleting admin: ", utils.Err(err))
-
-		if strings.Contains(err.Error(), "not found") {
-			errorMessage := fmt.Sprintf("Admin with ID %d not found", id)
-			utils.RespondWithErrorJSON(w, status.NotFound, errorMessage)
+		if err == domain.ErrAdminNotFound {
+			utils.RespondWithErrorJSON(w, status.NotFound, errors.AdminNotFound)
 			return
 		}
 
+		slog.Error("Error deleting admin: ", utils.Err(err))
 		utils.RespondWithErrorJSON(w, status.InternalServerError, fmt.Sprintf("Error deleting admin: %s", err))
 		return
 	}

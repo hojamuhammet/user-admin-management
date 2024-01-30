@@ -23,10 +23,11 @@ type UserHandler struct {
 // @Summary Get all users
 // @Description Retrieves a list of all users with pagination.
 // @Tags users
+// @Accept json
 // @Produce json
+// @Security jwt
 // @Param page query int false "Page number"
 // @Param pageSize query int false "Page size"
-// @Security ApiKeyAuth
 // @Success 200 {object} domain.UsersListResponse "Success"
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
 // @Router /api/user [get]
@@ -71,9 +72,10 @@ func (h *UserHandler) GetAllUsersHandler(w http.ResponseWriter, r *http.Request)
 // @Summary Get user by ID
 // @Description Retrieves a user by ID.
 // @Tags users
+// @Accept json
 // @Produce json
+// @Security jwt
 // @Param id path int true "User ID"
-// @Security ApiKeyAuth
 // @Success 200 {object} domain.GetUserResponse "Success"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidID
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
@@ -88,6 +90,11 @@ func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request)
 
 	user, err := h.UserService.GetUserByID(int32(id))
 	if err != nil {
+		if err.Error() == "user not found" {
+			utils.RespondWithErrorJSON(w, status.NotFound, errors.UserNotFound)
+			return
+		}
+
 		slog.Error("Error retrieving user: ", utils.Err(err))
 		utils.RespondWithErrorJSON(w, status.InternalServerError, "Error retrieving user")
 		return
@@ -100,9 +107,10 @@ func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request)
 // @Summary Create user
 // @Description Creates a new administrator with the provided details.
 // @Tags users
+// @Accept json
 // @Produce json
+// @Security jwt
 // @Param request body domain.CreateUserRequest true "User creation request"
-// @Security ApiKeyAuth
 // @Success 201 {object} domain.CreateUserResponse "Created"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidRequestBody
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
@@ -135,10 +143,11 @@ func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 // @Summary Update user
 // @Description Updates an existing user with the provided data.
 // @Tags users
+// @Accept json
 // @Produce json
+// @Security jwt
 // @Param id path int true "User ID"
 // @Param request body domain.UpdateUserRequest true "User update request"
-// @Security ApiKeyAuth
 // @Success 200 {object} domain.UpdateUserResponse "Updated"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidID or errors.InvalidRequestBody
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
@@ -176,9 +185,10 @@ func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) 
 // @Summary Delete user by ID
 // @Description Deletes a user by their unique ID.
 // @Tags users
+// @Accept json
 // @Produce json
+// @Security jwt
 // @Param id path int true "User ID"
-// @Security ApiKeyAuth
 // @Success 200 {object} StatusMessage "Deleted"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidID
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
@@ -207,9 +217,10 @@ func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) 
 // @Summary Block user by ID
 // @Description Blocks a user by their unique ID.
 // @Tags users
+// @Accept json
 // @Produce json
+// @Security jwt
 // @Param id path int true "User ID"
-// @Security ApiKeyAuth
 // @Success 200 {object} StatusMessage "Blocked"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidID
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
@@ -238,9 +249,10 @@ func (h *UserHandler) BlockUserHandler(w http.ResponseWriter, r *http.Request) {
 // @Summary Unblock user by ID
 // @Description Unblocks a user by their unique ID.
 // @Tags users
+// @Accept json
 // @Produce json
+// @Security jwt
 // @Param id path int true "User ID"
-// @Security ApiKeyAuth
 // @Success 200 {object} StatusMessage "Unblocked"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidID
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
@@ -269,11 +281,12 @@ func (h *UserHandler) UnblockUserHandler(w http.ResponseWriter, r *http.Request)
 // @Summary Search users
 // @Description Search users by query with pagination
 // @Tags users
+// @Accept json
 // @Produce json
+// @Security jwt
 // @Param query query string true "Search query"
 // @Param page query int false "Page number"
 // @Param pageSize query int false "Page size"
-// @Security ApiKeyAuth
 // @Success 200 {object} domain.UsersListResponse "Success"
 // @Failure 400 {string} string "Bad Request: " + errors.SearchQueryRequired
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
