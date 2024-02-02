@@ -111,7 +111,7 @@ func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request)
 // @Produce json
 // @Security jwt
 // @Param request body domain.CreateUserRequest true "User creation request"
-// @Success 201 {object} domain.CreateUserResponse "Created"
+// @Success 200 {object} domain.CreateUserResponse "Created"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidRequestBody
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
 // @Router /api/user [post]

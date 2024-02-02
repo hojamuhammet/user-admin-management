@@ -111,7 +111,7 @@ func (h *AdminHandler) GetAdminByID(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Security jwt
 // @Param admin body domain.CreateAdminRequest true "Admin data"
-// @Success 201 {object} domain.Admin
+// @Success 200 {object} domain.Admin
 // @Failure 400 {string} string
 // @Failure 409 {string} string
 // @Failure 500 {string} string

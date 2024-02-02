@@ -92,8 +92,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/domain.Admin"
                         }
@@ -426,7 +426,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/domain.CreateUserResponse"
@@ -868,7 +868,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Provide with your refresh token in header to make new refresh and access token.",
+                "description": "Provide with your refresh token in header to make new refresh and access token pair.",
                 "consumes": [
                     "application/json"
                 ],
