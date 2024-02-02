@@ -73,7 +73,7 @@ func (h *AdminAuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 // @Summary Refresh Tokens
-// @Description Provide with your refresh token in header to make new refresh and access token.
+// @Description Provide with your refresh token in header to make new refresh and access token pair.
 // @Tags auth
 // @Accept json
 // @Produce json
