@@ -7,8 +7,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
-	"strconv"
-	"strings"
 )
 
 type PostgresUserRepository struct {
@@ -123,12 +121,9 @@ func (r *PostgresUserRepository) CreateUser(request *domain.CreateUserRequest) (
 	}
 
 	stmt, err := r.DB.Prepare(`
-		INSERT INTO users (first_name, last_name, phone_number,
-			gender, date_of_birth, location, email, profile_photo_url)
+		INSERT INTO users (first_name, last_name, phone_number,	gender, date_of_birth, location, email, profile_photo_url)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-		RETURNING id, first_name, last_name, phone_number, blocked,
-			registration_date, gender, date_of_birth, location,
-			email, profile_photo_url
+		RETURNING id, first_name, last_name, phone_number, blocked,	registration_date, gender, date_of_birth, location,	email, profile_photo_url
 	`)
 	if err != nil {
 		slog.Error("error preparing query: %v", utils.Err(err))
@@ -167,51 +162,18 @@ func (r *PostgresUserRepository) CreateUser(request *domain.CreateUserRequest) (
 
 	return &user, nil
 }
-
 func (r PostgresUserRepository) UpdateUser(request *domain.UpdateUserRequest) (*domain.UpdateUserResponse, error) {
-	updateQuery := "UPDATE users SET"
-	var queryParams []interface{}
-	var queryArgs []string
-
-	if request.FirstName != "" {
-		queryArgs = append(queryArgs, "first_name = $"+strconv.Itoa(len(queryParams)+1))
-		queryParams = append(queryParams, request.FirstName)
-	}
-
-	if request.LastName != "" {
-		queryArgs = append(queryArgs, "last_name = $"+strconv.Itoa(len(queryParams)+1))
-		queryParams = append(queryParams, request.LastName)
-	}
-
-	if request.PhoneNumber != "" {
-		queryArgs = append(queryArgs, "phone_number = $"+strconv.Itoa(len(queryParams)+1))
-		queryParams = append(queryParams, request.PhoneNumber)
-	}
-
-	if request.Gender != "" {
-		queryArgs = append(queryArgs, "gender = $"+strconv.Itoa(len(queryParams)+1))
-		queryParams = append(queryParams, request.Gender)
-	}
-
-	if request.Location != "" {
-		queryArgs = append(queryArgs, "location = $"+strconv.Itoa(len(queryParams)+1))
-		queryParams = append(queryParams, request.Location)
-	}
-
-	if request.Email != "" {
-		queryArgs = append(queryArgs, "email = $"+strconv.Itoa(len(queryParams)+1))
-		queryParams = append(queryParams, request.Email)
-	}
-
-	if request.ProfilePhotoURL != "" {
-		queryArgs = append(queryArgs, "profile_photo_url = $"+strconv.Itoa(len(queryParams)+1))
-		queryParams = append(queryParams, request.ProfilePhotoURL)
-	}
-
-	updateQuery += " " + strings.Join(queryArgs, ", ") + " WHERE id = $" + strconv.Itoa(len(queryParams)+1)
-	queryParams = append(queryParams, request.ID)
-
-	updateQuery += " RETURNING id, first_name, last_name, phone_number, blocked, gender, registration_date, date_of_birth, location, email, profile_photo_url"
+	updateQuery := `UPDATE users SET
+                    first_name = $1,
+                    last_name = $2,
+                    phone_number = $3,
+                    gender = $4,
+                    date_of_birth = $5,
+                    location = $6,
+                    email = $7,
+                    profile_photo_url = $8
+                    WHERE id = $9
+                    RETURNING id, first_name, last_name, phone_number, blocked, gender, registration_date, date_of_birth, location, email, profile_photo_url`
 
 	stmt, err := r.DB.Prepare(updateQuery)
 	if err != nil {
@@ -221,8 +183,17 @@ func (r PostgresUserRepository) UpdateUser(request *domain.UpdateUserRequest) (*
 	defer stmt.Close()
 
 	var user domain.UpdateUserResponse
-
-	err = stmt.QueryRow(queryParams...).Scan(
+	err = stmt.QueryRow(
+		request.FirstName,
+		request.LastName,
+		request.PhoneNumber,
+		request.Gender,
+		request.DateOfBirth,
+		request.Location,
+		request.Email,
+		request.ProfilePhotoURL,
+		request.ID,
+	).Scan(
 		&user.ID,
 		&user.FirstName,
 		&user.LastName,
@@ -236,7 +207,7 @@ func (r PostgresUserRepository) UpdateUser(request *domain.UpdateUserRequest) (*
 		&user.ProfilePhotoURL,
 	)
 	if err != nil {
-		slog.Error("error executing  query: %v", utils.Err(err))
+		slog.Error("error executing query: %v", utils.Err(err))
 		return nil, err
 	}
 
