@@ -21,9 +21,7 @@ func (r *PostgresUserRepository) GetAllUsers(page, pageSize int) (*domain.UsersL
 	offset := (page - 1) * pageSize
 
 	query := `
-        SELECT id, first_name, last_name, phone_number, blocked,
-        registration_date, gender, date_of_birth, location,
-        email, profile_photo_url
+        SELECT id, first_name, last_name, phone_number, blocked, registration_date, gender, date_of_birth, location, email, profile_photo_url
         FROM users
         ORDER BY id
         LIMIT $1 OFFSET $2
@@ -162,6 +160,7 @@ func (r *PostgresUserRepository) CreateUser(request *domain.CreateUserRequest) (
 
 	return &user, nil
 }
+
 func (r PostgresUserRepository) UpdateUser(request *domain.UpdateUserRequest) (*domain.UpdateUserResponse, error) {
 	updateQuery := `UPDATE users SET
                     first_name = $1,
@@ -207,6 +206,9 @@ func (r PostgresUserRepository) UpdateUser(request *domain.UpdateUserRequest) (*
 		&user.ProfilePhotoURL,
 	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrUserNotFound
+		}
 		slog.Error("error executing query: %v", utils.Err(err))
 		return nil, err
 	}

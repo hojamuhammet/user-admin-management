@@ -172,6 +172,10 @@ func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) 
 
 	user, err := h.UserService.UpdateUser(&updateUserRequest)
 	if err != nil {
+		if err == domain.ErrUserNotFound {
+			utils.RespondWithErrorJSON(w, status.NotFound, "User not found")
+			return
+		}
 		slog.Error("Error updating user: ", utils.Err(err))
 		utils.RespondWithErrorJSON(w, status.InternalServerError, fmt.Sprintf("error updating user: %v", err))
 		return
