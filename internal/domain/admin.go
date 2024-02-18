@@ -30,7 +30,6 @@ type CreateAdminRequest struct {
 }
 
 type UpdateAdminRequest struct {
-	ID       int32  `json:"id"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Role     string `json:"role"`
@@ -48,6 +47,8 @@ type CommonAdminResponse struct {
 	Username string `json:"username"`
 	Role     string `json:"role"`
 }
+
+type UpdateAdminResponse CommonAdminResponse
 
 var (
 	ErrInvalidCredentials   = errors.New("invalid credentials")

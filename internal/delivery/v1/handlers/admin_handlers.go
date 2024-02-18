@@ -174,9 +174,7 @@ func (h *AdminHandler) UpdateAdminHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	updateAdminRequest.ID = int32(id)
-
-	admin, err := h.AdminService.UpdateAdmin(&updateAdminRequest)
+	admin, err := h.AdminService.UpdateAdmin(int32(id), &updateAdminRequest)
 	if err != nil {
 		if err == domain.ErrAdminNotFound {
 			utils.RespondWithErrorJSON(w, status.NotFound, errors.AdminNotFound)

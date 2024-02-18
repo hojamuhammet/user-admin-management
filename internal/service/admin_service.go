@@ -25,8 +25,8 @@ func (s *AdminService) CreateAdmin(request *domain.CreateAdminRequest) (*domain.
 	return s.AdminRepository.CreateAdmin(request)
 }
 
-func (s *AdminService) UpdateAdmin(request *domain.UpdateAdminRequest) (*domain.CommonAdminResponse, error) {
-	return s.AdminRepository.UpdateAdmin(request)
+func (s *AdminService) UpdateAdmin(id int32, request *domain.UpdateAdminRequest) (*domain.CommonAdminResponse, error) {
+	return s.AdminRepository.UpdateAdmin(id, request)
 }
 
 func (s *AdminService) DeleteAdmin(id int32) error {

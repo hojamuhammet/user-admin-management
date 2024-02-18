@@ -7,8 +7,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
-	"strconv"
-	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -148,36 +146,13 @@ func (r *PostgresAdminRepository) CreateAdmin(request *domain.CreateAdminRequest
 	return &admin, nil
 }
 
-func (r *PostgresAdminRepository) UpdateAdmin(request *domain.UpdateAdminRequest) (*domain.CommonAdminResponse, error) {
-	updateQuery := `UPDATE admins SET`
-	var queryParams []interface{}
-	var queryArgs []string
-
-	if request.Username != "" {
-		queryArgs = append(queryArgs, "username = $"+strconv.Itoa(len(queryParams)+1))
-		queryParams = append(queryParams, request.Username)
-	}
-
-	if request.Password != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
-		if err != nil {
-			slog.Error("error hashing new password: %v", utils.Err(err))
-			return nil, err
-		}
-
-		queryArgs = append(queryArgs, "password = $"+strconv.Itoa(len(queryParams)+1))
-		queryParams = append(queryParams, hashedPassword)
-	}
-
-	if request.Role != "" {
-		queryArgs = append(queryArgs, "role = $"+strconv.Itoa(len(queryParams)+1))
-		queryParams = append(queryParams, request.Role)
-	}
-
-	updateQuery += " " + strings.Join(queryArgs, ", ") + " WHERE id = $" + strconv.Itoa(len(queryParams)+1)
-	queryParams = append(queryParams, request.ID)
-
-	updateQuery += " RETURNING id, username, role"
+func (r *PostgresAdminRepository) UpdateAdmin(id int32, request *domain.UpdateAdminRequest) (*domain.CommonAdminResponse, error) {
+	updateQuery := `UPDATE admins SET
+                    username = $1,
+                    password = $2,
+                    role = $3
+                    WHERE id = $4
+                    RETURNING id, username, role`
 
 	stmt, err := r.DB.Prepare(updateQuery)
 	if err != nil {
@@ -188,7 +163,12 @@ func (r *PostgresAdminRepository) UpdateAdmin(request *domain.UpdateAdminRequest
 
 	var admin domain.CommonAdminResponse
 
-	err = stmt.QueryRow(queryParams...).Scan(
+	err = stmt.QueryRow(
+		request.Username,
+		request.Password,
+		request.Role,
+		id,
+	).Scan(
 		&admin.ID,
 		&admin.Username,
 		&admin.Role,
