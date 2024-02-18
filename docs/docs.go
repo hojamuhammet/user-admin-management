@@ -548,6 +548,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "404": {
+                        "description": "User not found\" + errors.UserNotFound",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error: \" + errors.InternalServerError",
                         "schema": {
@@ -604,6 +610,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "404": {
+                        "description": "User not found: \" + errors.UserNotFound",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error: \" + errors.InternalServerError",
                         "schema": {
@@ -647,6 +659,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request: \" + errors.InvalidID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found: \" + errors.UserNotFound",
                         "schema": {
                             "type": "string"
                         }
@@ -700,6 +718,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "404": {
+                        "description": "User not found: \" + errors.UserNotFound",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error: \" + errors.InternalServerError",
                         "schema": {
@@ -745,6 +769,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request: \" + errors.InvalidID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found: \" + errors.UserNotFound",
                         "schema": {
                             "type": "string"
                         }

@@ -78,6 +78,7 @@ func (h *UserHandler) GetAllUsersHandler(w http.ResponseWriter, r *http.Request)
 // @Param id path int true "User ID"
 // @Success 200 {object} domain.GetUserResponse "Success"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidID
+// @Failure 404 {string} string "User not found" + errors.UserNotFound
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
 // @Router /api/user/{id} [get]
 func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request) {
@@ -150,6 +151,7 @@ func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 // @Param request body domain.UpdateUserRequest true "User update request"
 // @Success 200 {object} domain.UpdateUserResponse "Updated"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidID or errors.InvalidRequestBody
+// @Failure 404 {string} string "User not found: " + errors.UserNotFound
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
 // @Router /api/user/{id} [put]
 func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -171,7 +173,7 @@ func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) 
 	user, err := h.UserService.UpdateUser(int32(id), &updateUserRequest)
 	if err != nil {
 		if err == domain.ErrUserNotFound {
-			utils.RespondWithErrorJSON(w, status.NotFound, "User not found")
+			utils.RespondWithErrorJSON(w, status.NotFound, errors.UserNotFound)
 			return
 		}
 		slog.Error("Error updating user: ", utils.Err(err))
@@ -193,6 +195,7 @@ func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) 
 // @Param id path int true "User ID"
 // @Success 200 {object} StatusMessage "Deleted"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidID
+// @Failure 404 {string} string "User not found: " + errors.UserNotFound
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
 // @Router /api/user/{id} [delete]
 func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -229,6 +232,7 @@ func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) 
 // @Param id path int true "User ID"
 // @Success 200 {object} StatusMessage "Blocked"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidID
+// @Failure 404 {string} string "User not found: " + errors.UserNotFound
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
 // @Router /api/user/{id}/block [post]
 func (h *UserHandler) BlockUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -265,6 +269,7 @@ func (h *UserHandler) BlockUserHandler(w http.ResponseWriter, r *http.Request) {
 // @Param id path int true "User ID"
 // @Success 200 {object} StatusMessage "Unblocked"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidID
+// @Failure 404 {string} string "User not found: " + errors.UserNotFound
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
 // @Router /api/user/{id}/unblock [post]
 func (h *UserHandler) UnblockUserHandler(w http.ResponseWriter, r *http.Request) {
