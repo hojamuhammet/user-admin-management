@@ -26,7 +26,7 @@ import (
 // @version 1.0
 // @description API for Admin Panel.
 // @description This API provides endpoints to manage users, administrators, and authentication in the admin panel.
-// @host localhost:8081
+// @host localhost:8080
 // @BasePath /
 // @schemes http
 // @securityDefinitions.apikey jwt
@@ -85,7 +85,7 @@ func main() {
 	routers.SetupUserRoutes(userRouter, userService)
 
 	mainRouter.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8081/swagger/doc.json"),
+		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
 	))
 
 	// Handling graceful shutdown

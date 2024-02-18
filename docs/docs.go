@@ -426,7 +426,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/domain.CreateUserResponse"
@@ -979,7 +979,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "date_of_birth": {
-                    "$ref": "#/definitions/domain.Date"
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -1028,7 +1028,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "date_of_birth": {
-                    "$ref": "#/definitions/domain.Date"
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -1060,7 +1060,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "date_of_birth": {
-                    "$ref": "#/definitions/domain.Date"
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -1091,20 +1091,6 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.Date": {
-            "type": "object",
-            "properties": {
-                "day": {
-                    "type": "integer"
-                },
-                "month": {
-                    "type": "integer"
-                },
-                "year": {
-                    "type": "integer"
-                }
-            }
-        },
         "domain.GetUserResponse": {
             "type": "object",
             "properties": {
@@ -1112,7 +1098,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "date_of_birth": {
-                    "$ref": "#/definitions/domain.Date"
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -1178,7 +1164,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "date_of_birth": {
-                    "$ref": "#/definitions/domain.Date"
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -1188,9 +1174,6 @@ const docTemplate = `{
                 },
                 "gender": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "last_name": {
                     "type": "string"
@@ -1213,7 +1196,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "date_of_birth": {
-                    "$ref": "#/definitions/domain.Date"
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -1318,7 +1301,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8081",
+	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{"http"},
 	Title:            "Admin Panel API",
