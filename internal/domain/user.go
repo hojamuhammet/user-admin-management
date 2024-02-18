@@ -20,6 +20,17 @@ type UsersListResponse struct {
 	NextPage    int        `json:"nextPage"`
 }
 
+type CommonUserRequest struct {
+	FirstName       string    `json:"first_name"`
+	LastName        string    `json:"last_name"`
+	PhoneNumber     string    `json:"phone_number"`
+	Gender          string    `json:"gender"`
+	DateOfBirth     time.Time `json:"date_of_birth"`
+	Location        string    `json:"location"`
+	Email           string    `json:"email"`
+	ProfilePhotoURL string    `json:"profile_photo_url"`
+}
+
 type CommonUserResponse struct {
 	ID               int32     `json:"id"`
 	FirstName        string    `json:"first_name"`
@@ -36,30 +47,11 @@ type CommonUserResponse struct {
 
 type GetUserResponse CommonUserResponse
 
-type CreateUserRequest struct {
-	FirstName       string    `json:"first_name"`
-	LastName        string    `json:"last_name"`
-	PhoneNumber     string    `json:"phone_number"`
-	Gender          string    `json:"gender"`
-	DateOfBirth     time.Time `json:"date_of_birth"`
-	Location        string    `json:"location"`
-	Email           string    `json:"email"`
-	ProfilePhotoURL string    `json:"profile_photo_url"`
-}
+type CreateUserRequest CommonUserRequest
 
 type CreateUserResponse CommonUserResponse
 
-type UpdateUserRequest struct {
-	ID              int32     `json:"id"`
-	FirstName       string    `json:"first_name"`
-	LastName        string    `json:"last_name"`
-	PhoneNumber     string    `json:"phone_number"`
-	Gender          string    `json:"gender"`
-	DateOfBirth     time.Time `json:"date_of_birth"`
-	Location        string    `json:"location"`
-	Email           string    `json:"email"`
-	ProfilePhotoURL string    `json:"profile_photo_url"`
-}
+type UpdateUserRequest CommonUserRequest
 
 type UpdateUserResponse CommonUserResponse
 
