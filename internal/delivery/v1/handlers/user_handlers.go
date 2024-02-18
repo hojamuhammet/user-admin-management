@@ -111,7 +111,7 @@ func (h *UserHandler) GetUserByIDHandler(w http.ResponseWriter, r *http.Request)
 // @Produce json
 // @Security jwt
 // @Param request body domain.CreateUserRequest true "User creation request"
-// @Success 200 {object} domain.CreateUserResponse "Created"
+// @Success 201 {object} domain.CreateUserResponse "Created"
 // @Failure 400 {string} string "Bad Request: " + errors.InvalidRequestBody
 // @Failure 500 {string} string "Internal Server Error: " + errors.InternalServerError
 // @Router /api/user [post]
@@ -168,9 +168,7 @@ func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	updateUserRequest.ID = int32(id)
-
-	user, err := h.UserService.UpdateUser(&updateUserRequest)
+	user, err := h.UserService.UpdateUser(int32(id), &updateUserRequest)
 	if err != nil {
 		if err == domain.ErrUserNotFound {
 			utils.RespondWithErrorJSON(w, status.NotFound, "User not found")

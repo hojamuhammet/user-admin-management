@@ -161,7 +161,7 @@ func (r *PostgresUserRepository) CreateUser(request *domain.CreateUserRequest) (
 	return &user, nil
 }
 
-func (r PostgresUserRepository) UpdateUser(request *domain.UpdateUserRequest) (*domain.UpdateUserResponse, error) {
+func (r PostgresUserRepository) UpdateUser(id int32, request *domain.UpdateUserRequest) (*domain.UpdateUserResponse, error) {
 	updateQuery := `UPDATE users SET
                     first_name = $1,
                     last_name = $2,
@@ -191,7 +191,7 @@ func (r PostgresUserRepository) UpdateUser(request *domain.UpdateUserRequest) (*
 		request.Location,
 		request.Email,
 		request.ProfilePhotoURL,
-		request.ID,
+		id,
 	).Scan(
 		&user.ID,
 		&user.FirstName,

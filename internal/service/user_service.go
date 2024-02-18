@@ -25,8 +25,8 @@ func (s *UserService) CreateUser(request *domain.CreateUserRequest) (*domain.Cre
 	return s.UserRepository.CreateUser(request)
 }
 
-func (s *UserService) UpdateUser(request *domain.UpdateUserRequest) (*domain.UpdateUserResponse, error) {
-	return s.UserRepository.UpdateUser(request)
+func (s *UserService) UpdateUser(id int32, request *domain.UpdateUserRequest) (*domain.UpdateUserResponse, error) {
+	return s.UserRepository.UpdateUser(id, request)
 }
 
 func (s *UserService) DeleteUser(id int32) error {
