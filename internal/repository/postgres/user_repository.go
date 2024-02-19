@@ -165,13 +165,12 @@ func (r PostgresUserRepository) UpdateUser(id int32, request *domain.UpdateUserR
 	updateQuery := `UPDATE users SET
                     first_name = $1,
                     last_name = $2,
-                    phone_number = $3,
-                    gender = $4,
-                    date_of_birth = $5,
-                    location = $6,
-                    email = $7,
-                    profile_photo_url = $8
-                    WHERE id = $9
+                    gender = $3,
+                    date_of_birth = $4,
+                    location = $5,
+                    email = $6,
+                    profile_photo_url = $7
+                    WHERE id = $8
                     RETURNING id, first_name, last_name, phone_number, blocked, gender, registration_date, date_of_birth, location, email, profile_photo_url`
 
 	stmt, err := r.DB.Prepare(updateQuery)
@@ -185,7 +184,6 @@ func (r PostgresUserRepository) UpdateUser(id int32, request *domain.UpdateUserR
 	err = stmt.QueryRow(
 		request.FirstName,
 		request.LastName,
-		request.PhoneNumber,
 		request.Gender,
 		request.DateOfBirth,
 		request.Location,

@@ -20,10 +20,20 @@ type UsersListResponse struct {
 	NextPage    int        `json:"nextPage"`
 }
 
-type CommonUserRequest struct {
+type CreateUserRequest struct {
 	FirstName       string    `json:"first_name"`
 	LastName        string    `json:"last_name"`
 	PhoneNumber     string    `json:"phone_number"`
+	Gender          string    `json:"gender"`
+	DateOfBirth     time.Time `json:"date_of_birth"`
+	Location        string    `json:"location"`
+	Email           string    `json:"email"`
+	ProfilePhotoURL string    `json:"profile_photo_url"`
+}
+
+type UpdateUserRequest struct {
+	FirstName       string    `json:"first_name"`
+	LastName        string    `json:"last_name"`
 	Gender          string    `json:"gender"`
 	DateOfBirth     time.Time `json:"date_of_birth"`
 	Location        string    `json:"location"`
@@ -47,11 +57,7 @@ type CommonUserResponse struct {
 
 type GetUserResponse CommonUserResponse
 
-type CreateUserRequest CommonUserRequest
-
 type CreateUserResponse CommonUserResponse
-
-type UpdateUserRequest CommonUserRequest
 
 type UpdateUserResponse CommonUserResponse
 
