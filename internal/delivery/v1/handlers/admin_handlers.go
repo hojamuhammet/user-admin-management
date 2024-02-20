@@ -49,8 +49,6 @@ func (h *AdminHandler) GetAllAdminsHandler(w http.ResponseWriter, r *http.Reques
 		previousPage = 1
 	}
 
-	nextPage := page + 1
-
 	admins, err := h.AdminService.GetAllAdmins(page, pageSize)
 	if err != nil {
 		slog.Error("Error getting admins: ", utils.Err(err))
@@ -67,6 +65,11 @@ func (h *AdminHandler) GetAllAdminsHandler(w http.ResponseWriter, r *http.Reques
 
 	firstPage := 1
 	lastPage := (totalAdmins + pageSize - 1) / pageSize
+
+	nextPage := page + 1
+	if page >= lastPage {
+		nextPage = lastPage
+	}
 
 	response := domain.AdminListResponse{
 		Admins:      admins,
@@ -293,6 +296,9 @@ func (h *AdminHandler) SearchAdminsHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	nextPage := page + 1
+	if page >= lastPage {
+		nextPage = lastPage
+	}
 
 	response := domain.AdminListResponse{
 		Admins:      admins,

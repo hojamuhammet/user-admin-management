@@ -49,8 +49,6 @@ func (h *UserHandler) GetAllUsersHandler(w http.ResponseWriter, r *http.Request)
 		previousPage = 1
 	}
 
-	nextPage := page + 1
-
 	users, err := h.UserService.GetAllUsers(page, pageSize)
 	if err != nil {
 		slog.Error("Error getting users: ", utils.Err(err))
@@ -67,6 +65,11 @@ func (h *UserHandler) GetAllUsersHandler(w http.ResponseWriter, r *http.Request)
 
 	firstPage := 1
 	lastPage := (totalUsers + pageSize - 1) / pageSize
+
+	nextPage := page + 1
+	if page >= lastPage {
+		nextPage = lastPage
+	}
 
 	response := domain.UsersListResponse{
 
@@ -364,6 +367,9 @@ func (h *UserHandler) SearchUsersHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	nextPage := page + 1
+	if page >= lastPage {
+		nextPage = lastPage
+	}
 
 	response := domain.UsersListResponse{
 
