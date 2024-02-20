@@ -58,12 +58,24 @@ func (h *UserHandler) GetAllUsersHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	totalUsers, err := h.UserService.GetTotalUsersCount()
+	if err != nil {
+		slog.Error("Error getting total users count: ", utils.Err(err))
+		http.Error(w, errors.InternalServerError, status.InternalServerError)
+		return
+	}
+
+	firstPage := 1
+	lastPage := (totalUsers + pageSize - 1) / pageSize
+
 	response := domain.UsersListResponse{
 
 		Users:       users,
 		CurrentPage: page,
 		PrevPage:    previousPage,
 		NextPage:    nextPage,
+		FirstPage:   firstPage,
+		LastPage:    lastPage,
 	}
 
 	utils.RespondWithJSON(w, status.OK, response)
@@ -334,8 +346,20 @@ func (h *UserHandler) SearchUsersHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	previousPage := page - 1
-	if previousPage < 1 {
+	totalUsers, err := h.UserService.GetTotalUsersCount()
+	if err != nil {
+		slog.Error("Error getting total users count: ", utils.Err(err))
+		http.Error(w, errors.InternalServerError, status.InternalServerError)
+		return
+	}
+
+	firstPage := 1
+	lastPage := (totalUsers + pageSize - 1) / pageSize
+
+	var previousPage int
+	if page > 1 {
+		previousPage = page - 1
+	} else {
 		previousPage = 1
 	}
 
@@ -347,6 +371,8 @@ func (h *UserHandler) SearchUsersHandler(w http.ResponseWriter, r *http.Request)
 		CurrentPage: page,
 		PrevPage:    previousPage,
 		NextPage:    nextPage,
+		FirstPage:   firstPage,
+		LastPage:    lastPage,
 	}
 
 	utils.RespondWithJSON(w, status.OK, response)

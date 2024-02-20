@@ -61,6 +61,17 @@ func (r *PostgresAdminRepository) GetAllAdmins(page, pageSize int) (*domain.Admi
 	return &adminList, nil
 }
 
+func (r *PostgresUserRepository) GetTotalAdminsCount() (int, error) {
+	var totalAdmins int
+	err := r.DB.QueryRow("SELECT COUNT(*) FROM admins").Scan(&totalAdmins)
+	if err != nil {
+		slog.Error("error getting total admins count", utils.Err(err))
+		return 0, err
+	}
+
+	return totalAdmins, nil
+}
+
 func (r *PostgresAdminRepository) GetAdminByID(id int32) (*domain.CommonAdminResponse, error) {
 	stmt, err := r.DB.Prepare(`
 		SELECT id, username, role

@@ -17,6 +17,10 @@ func (s *AdminService) GetAllAdmins(page, pageSize int) (*domain.AdminsList, err
 	return s.AdminRepository.GetAllAdmins(page, pageSize)
 }
 
+func (s *AdminService) GetTotalAdminsCount() (int, error) {
+	return s.AdminRepository.GetTotalAdminsCount()
+}
+
 func (s *AdminService) GetAdminByID(id int32) (*domain.CommonAdminResponse, error) {
 	return s.AdminRepository.GetAdminByID(id)
 }

@@ -72,6 +72,17 @@ func (r *PostgresUserRepository) GetAllUsers(page, pageSize int) (*domain.UsersL
 	return &usersList, nil
 }
 
+func (r *PostgresUserRepository) GetTotalUsersCount() (int, error) {
+	var totalUsers int
+	err := r.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&totalUsers)
+	if err != nil {
+		slog.Error("error getting total users count", utils.Err(err))
+		return 0, err
+	}
+
+	return totalUsers, nil
+}
+
 func (r *PostgresUserRepository) GetUserByID(id int32) (*domain.GetUserResponse, error) {
 	stmt, err := r.DB.Prepare(`
 		SELECT id, first_name, last_name, phone_number, blocked, registration_date, gender, date_of_birth, location, email, profile_photo_url

@@ -40,6 +40,8 @@ type AdminListResponse struct {
 	CurrentPage int         `json:"currentPage"`
 	PrevPage    int         `json:"previousPage"`
 	NextPage    int         `json:"nextPage"`
+	FirstPage   int         `json:"firstPage"`
+	LastPage    int         `json:"lastPage"`
 }
 
 type CommonAdminResponse struct {

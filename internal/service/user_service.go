@@ -17,6 +17,10 @@ func (s *UserService) GetAllUsers(page, pageSize int) (*domain.UsersList, error)
 	return s.UserRepository.GetAllUsers(page, pageSize)
 }
 
+func (s *UserService) GetTotalUsersCount() (int, error) {
+	return s.UserRepository.GetTotalUsersCount()
+}
+
 func (s *UserService) GetUserByID(id int32) (*domain.GetUserResponse, error) {
 	return s.UserRepository.GetUserByID(id)
 }

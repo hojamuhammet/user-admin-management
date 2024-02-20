@@ -58,11 +58,23 @@ func (h *AdminHandler) GetAllAdminsHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	totalAdmins, err := h.AdminService.GetTotalAdminsCount()
+	if err != nil {
+		slog.Error("Error getting total admins count: ", utils.Err(err))
+		http.Error(w, errors.InternalServerError, status.InternalServerError)
+		return
+	}
+
+	firstPage := 1
+	lastPage := (totalAdmins + pageSize - 1) / pageSize
+
 	response := domain.AdminListResponse{
 		Admins:      admins,
 		CurrentPage: page,
 		PrevPage:    previousPage,
 		NextPage:    nextPage,
+		FirstPage:   firstPage,
+		LastPage:    lastPage,
 	}
 
 	utils.RespondWithJSON(w, status.OK, response)
@@ -265,6 +277,16 @@ func (h *AdminHandler) SearchAdminsHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	totalAdmins, err := h.AdminService.GetTotalAdminsCount()
+	if err != nil {
+		slog.Error("Error getting total admins count: ", utils.Err(err))
+		http.Error(w, errors.InternalServerError, status.InternalServerError)
+		return
+	}
+
+	firstPage := 1
+	lastPage := (totalAdmins + pageSize - 1) / pageSize
+
 	previousPage := page - 1
 	if previousPage < 1 {
 		previousPage = 1
@@ -277,6 +299,8 @@ func (h *AdminHandler) SearchAdminsHandler(w http.ResponseWriter, r *http.Reques
 		CurrentPage: page,
 		PrevPage:    previousPage,
 		NextPage:    nextPage,
+		FirstPage:   firstPage,
+		LastPage:    lastPage,
 	}
 
 	utils.RespondWithJSON(w, status.OK, response)

@@ -4,6 +4,7 @@ import "admin-panel/internal/domain"
 
 type UserRepository interface {
 	GetAllUsers(page, pageSize int) (*domain.UsersList, error)
+	GetTotalUsersCount() (int, error)
 	GetUserByID(id int32) (*domain.GetUserResponse, error)
 	CreateUser(request *domain.CreateUserRequest) (*domain.CreateUserResponse, error)
 	UpdateUser(id int32, request *domain.UpdateUserRequest) (*domain.UpdateUserResponse, error)
