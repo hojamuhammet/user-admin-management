@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"admin-panel/internal/domain"
+	repository "admin-panel/internal/repository/postgres"
 	"admin-panel/internal/service"
 	"admin-panel/pkg/lib/errors"
 	"admin-panel/pkg/lib/status"
@@ -16,8 +17,9 @@ import (
 )
 
 type UserHandler struct {
-	UserService *service.UserService
-	Router      *chi.Mux
+	UserService    *service.UserService
+	UserRepository *repository.PostgresUserRepository
+	Router         *chi.Mux
 }
 
 // @Summary Get all users
@@ -56,7 +58,7 @@ func (h *UserHandler) GetAllUsersHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	totalUsers, err := h.UserService.GetTotalUsersCount()
+	totalUsers, err := h.UserRepository.GetTotalUsersCount()
 	if err != nil {
 		slog.Error("Error getting total users count: ", utils.Err(err))
 		http.Error(w, errors.InternalServerError, status.InternalServerError)
@@ -349,7 +351,7 @@ func (h *UserHandler) SearchUsersHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	totalUsers, err := h.UserService.GetTotalUsersCount()
+	totalUsers, err := h.UserRepository.GetTotalUsersCount()
 	if err != nil {
 		slog.Error("Error getting total users count: ", utils.Err(err))
 		http.Error(w, errors.InternalServerError, status.InternalServerError)
