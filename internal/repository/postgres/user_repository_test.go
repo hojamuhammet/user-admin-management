@@ -3,11 +3,52 @@ package repository_test
 import (
 	"admin-panel/internal/domain"
 	"admin-panel/internal/domain/mocks"
+	repository "admin-panel/internal/repository/postgres"
 	"admin-panel/internal/service"
 	"errors"
 	"testing"
 	"time"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestGetAllUsers(t *testing.T) {
+	db, mock, _ := sqlmock.New()
+	defer db.Close()
+
+	repo := repository.NewPostgresUserRepository(db)
+
+	expectedUsers := []domain.CommonUserResponse{
+		{
+			ID:               1,
+			FirstName:        "John",
+			LastName:         "Doe",
+			PhoneNumber:      "1234567890",
+			Blocked:          false,
+			Gender:           "Male",
+			RegistrationDate: time.Now(),
+			DateOfBirth:      time.Now(),
+			Location:         "Location1",
+			Email:            "john.doe@example.com",
+			ProfilePhotoURL:  "https://example.com/john.jpg",
+		},
+	}
+
+	query := `SELECT id, first_name, last_name, phone_number, blocked, registration_date, gender, date_of_birth, location, email, profile_photo_url FROM users ORDER BY id LIMIT \$1 OFFSET \$2`
+
+	rows := sqlmock.NewRows([]string{"id", "first_name", "last_name", "phone_number", "blocked", "registration_date", "gender", "date_of_birth", "location", "email", "profile_photo_url"})
+	for _, user := range expectedUsers {
+		rows.AddRow(user.ID, user.FirstName, user.LastName, user.PhoneNumber, user.Blocked, user.RegistrationDate, user.Gender, user.DateOfBirth, user.Location, user.Email, user.ProfilePhotoURL)
+	}
+	mock.ExpectPrepare(query)
+	mock.ExpectQuery(query).WithArgs(10, 0).WillReturnRows(rows)
+
+	users, _ := repo.GetAllUsers(1, 10)
+
+	assert.Equal(t, expectedUsers, users.Users)
+}
 
 func TestGetUserByID(t *testing.T) {
 	mockRepo := mocks.NewUserRepositoryMock()
@@ -366,4 +407,42 @@ func TestUnblockUser(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
+}
+
+func TestSearchUsers(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer db.Close()
+
+	repo := repository.NewPostgresUserRepository(db)
+
+	expectedUsers := []domain.CommonUserResponse{
+		{
+			ID:               1,
+			FirstName:        "Kemal",
+			LastName:         "Atdayew",
+			PhoneNumber:      "1234567890",
+			Blocked:          false,
+			Gender:           "Male",
+			RegistrationDate: time.Now(),
+			DateOfBirth:      time.Now(),
+			Location:         "Location1",
+			Email:            "kemal.atdayew@example.com",
+			ProfilePhotoURL:  "https://example.com/john.jpg",
+		},
+	}
+
+	searchQuery := `SELECT id, first_name, last_name, phone_number, blocked, registration_date, gender, date_of_birth, location, email, profile_photo_url FROM users WHERE first_name ILIKE \$1 OR last_name ILIKE \$1 OR phone_number ILIKE \$1 OR email ILIKE \$1 ORDER BY id LIMIT \$2 OFFSET \$3`
+
+	rows := sqlmock.NewRows([]string{"id", "first_name", "last_name", "phone_number", "blocked", "registration_date", "gender", "date_of_birth", "location", "email", "profile_photo_url"})
+	for _, user := range expectedUsers {
+		rows.AddRow(user.ID, user.FirstName, user.LastName, user.PhoneNumber, user.Blocked, user.RegistrationDate, user.Gender, user.DateOfBirth, user.Location, user.Email, user.ProfilePhotoURL)
+	}
+	mock.ExpectPrepare(searchQuery)
+	mock.ExpectQuery(searchQuery).WithArgs("%Kemal%", 10, 0).WillReturnRows(rows)
+
+	users, err := repo.SearchUsers("Kemal", 1, 10)
+	require.NoError(t, err)
+
+	assert.Equal(t, expectedUsers, users.Users)
 }
