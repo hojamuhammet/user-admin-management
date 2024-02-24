@@ -7,6 +7,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"strings"
+
+	"github.com/lib/pq"
 )
 
 type PostgresUserRepository struct {
@@ -165,6 +168,15 @@ func (r *PostgresUserRepository) CreateUser(request *domain.CreateUserRequest) (
 		&user.ProfilePhotoURL,
 	)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			if pqErr.Code == "23505" {
+				if strings.Contains(pqErr.Error(), "phone_number") {
+					return nil, domain.ErrPhoneNumberInUse
+				} else if strings.Contains(pqErr.Error(), "email") {
+					return nil, domain.ErrEmailInUse
+				}
+			}
+		}
 		slog.Error("error executing query: %v", utils.Err(err))
 		return nil, err
 	}
@@ -215,6 +227,13 @@ func (r PostgresUserRepository) UpdateUser(id int32, request *domain.UpdateUserR
 		&user.ProfilePhotoURL,
 	)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			if pqErr.Code == "23505" {
+				if strings.Contains(pqErr.Error(), "email") {
+					return nil, domain.ErrEmailInUse
+				}
+			}
+		}
 		if err == sql.ErrNoRows {
 			return nil, domain.ErrUserNotFound
 		}

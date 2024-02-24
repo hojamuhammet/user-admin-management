@@ -18,6 +18,8 @@ const (
 	InvalidPhoneNumberFormat = "Invalid phone number format"
 	SearchQueryRequired      = "Search query is required"
 	UserNotFound             = "User not found"
+	PhoneNumberAlreadyInUse  = "Phone number already in use"
+	EmailAlreadyInUse        = "Email already in use"
 )
 
 // middleware

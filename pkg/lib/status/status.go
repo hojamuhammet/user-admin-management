@@ -10,4 +10,5 @@ const (
 	InternalServerError = http.StatusInternalServerError
 	Forbidden           = http.StatusForbidden
 	Conflict            = http.StatusConflict
+	Created             = http.StatusCreated
 )

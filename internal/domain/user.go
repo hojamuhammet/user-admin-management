@@ -66,4 +66,6 @@ type UpdateUserResponse CommonUserResponse
 var (
 	ErrUserNotFound      = errors.New("user not found")
 	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrPhoneNumberInUse  = errors.New("phone number already in use")
+	ErrEmailInUse        = errors.New("email already in use")
 )

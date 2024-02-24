@@ -3,7 +3,7 @@ package handlers
 import (
 	"admin-panel/internal/domain"
 	repository "admin-panel/internal/repository/postgres"
-	"admin-panel/internal/service"
+	service "admin-panel/internal/service/interfaces"
 	"admin-panel/pkg/lib/errors"
 	"admin-panel/pkg/lib/status"
 	"admin-panel/pkg/lib/utils"
@@ -17,9 +17,17 @@ import (
 )
 
 type UserHandler struct {
-	UserService    *service.UserService
+	UserService    service.UserServiceInterface
 	UserRepository *repository.PostgresUserRepository
 	Router         *chi.Mux
+}
+
+func NewUserHandler(s service.UserServiceInterface, r *repository.PostgresUserRepository, router *chi.Mux) *UserHandler {
+	return &UserHandler{
+		UserService:    s,
+		UserRepository: r,
+		Router:         router,
+	}
 }
 
 // @Summary Get all users
@@ -149,12 +157,19 @@ func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 	user, err := h.UserService.CreateUser(&createUserRequest)
 	if err != nil {
 		slog.Error("Error creating user: ", utils.Err(err))
-		utils.RespondWithErrorJSON(w, status.InternalServerError, fmt.Sprintf("error creating user: %v", err))
+		if err.Error() == domain.ErrPhoneNumberInUse.Error() {
+			utils.RespondWithErrorJSON(w, status.Conflict, errors.PhoneNumberAlreadyInUse)
+			return
+		} else if err.Error() == domain.ErrEmailInUse.Error() {
+			utils.RespondWithErrorJSON(w, status.Conflict, errors.EmailAlreadyInUse)
+			return
+		}
+		utils.RespondWithErrorJSON(w, status.InternalServerError, errors.InternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(status.Created)
 	json.NewEncoder(w).Encode(user)
 }
 
@@ -191,6 +206,9 @@ func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		if err == domain.ErrUserNotFound {
 			utils.RespondWithErrorJSON(w, status.NotFound, errors.UserNotFound)
+			return
+		} else if err == domain.ErrEmailInUse {
+			utils.RespondWithErrorJSON(w, status.Conflict, errors.EmailAlreadyInUse)
 			return
 		}
 		slog.Error("Error updating user: ", utils.Err(err))
