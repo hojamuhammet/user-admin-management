@@ -2,7 +2,8 @@ package service
 
 import (
 	"admin-panel/internal/domain"
-	"admin-panel/internal/repository"
+	repository "admin-panel/internal/repository/interfaces"
+	service "admin-panel/internal/service/interfaces"
 	"admin-panel/pkg/lib/utils"
 	"log/slog"
 
@@ -79,3 +80,5 @@ func (s *AdminAuthService) LogoutAdmin(refreshToken string) error {
 
 	return nil
 }
+
+var _ service.AdminAuthServiceInterface = &AdminAuthService{}

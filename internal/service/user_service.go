@@ -2,14 +2,15 @@ package service
 
 import (
 	"admin-panel/internal/domain"
-	"admin-panel/internal/repository"
+	repository "admin-panel/internal/repository/interfaces"
+	service "admin-panel/internal/service/interfaces"
 )
 
 type UserService struct {
-	UserRepository repository.UserRepository
+	UserRepository repository.UserRepositoryInterface
 }
 
-func NewUserService(userRepository repository.UserRepository) *UserService {
+func NewUserService(userRepository repository.UserRepositoryInterface) *UserService {
 	return &UserService{UserRepository: userRepository}
 }
 
@@ -44,3 +45,5 @@ func (s *UserService) UnblockUser(id int32) error {
 func (s *UserService) SearchUsers(query string, page, pageSize int) (*domain.UsersList, error) {
 	return s.UserRepository.SearchUsers(query, page, pageSize)
 }
+
+var _ service.UserServiceInterface = &UserService{}

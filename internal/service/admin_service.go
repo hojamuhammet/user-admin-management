@@ -2,7 +2,8 @@ package service
 
 import (
 	"admin-panel/internal/domain"
-	"admin-panel/internal/repository"
+	repository "admin-panel/internal/repository/interfaces"
+	service "admin-panel/internal/service/interfaces"
 )
 
 type AdminService struct {
@@ -40,3 +41,5 @@ func (s *AdminService) DeleteAdmin(id int32) error {
 func (s *AdminService) SearchAdmins(query string, page, pageSize int) (*domain.AdminsList, error) {
 	return s.AdminRepository.SearchAdmins(query, page, pageSize)
 }
+
+var _ service.AdminServiceInterface = &AdminService{}
