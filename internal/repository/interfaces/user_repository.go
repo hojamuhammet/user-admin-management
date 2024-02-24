@@ -2,7 +2,7 @@ package repository
 
 import "admin-panel/internal/domain"
 
-type UserRepository interface {
+type UserRepositoryInterface interface {
 	GetAllUsers(page, pageSize int) (*domain.UsersList, error)
 	GetUserByID(id int32) (*domain.GetUserResponse, error)
 	CreateUser(request *domain.CreateUserRequest) (*domain.CreateUserResponse, error)
