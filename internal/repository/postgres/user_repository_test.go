@@ -2,7 +2,7 @@ package repository_test
 
 import (
 	"admin-panel/internal/domain"
-	"admin-panel/internal/domain/mocks"
+	mocks "admin-panel/internal/mocks/repository"
 	repository "admin-panel/internal/repository/postgres"
 	"admin-panel/internal/service"
 	"errors"
