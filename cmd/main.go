@@ -82,7 +82,7 @@ func main() {
 
 	userRepository := repository.NewPostgresUserRepository(db.GetDB())
 	userService := service.NewUserService(userRepository)
-	routers.SetupUserRoutes(userRouter, userService)
+	routers.SetupUserRoutes(userRouter, userService, userRepository)
 
 	mainRouter.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
