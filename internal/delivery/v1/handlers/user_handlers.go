@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"admin-panel/internal/domain"
-	repository "admin-panel/internal/repository/postgres"
+	repository "admin-panel/internal/repository/interfaces"
 	service "admin-panel/internal/service/interfaces"
 	"admin-panel/pkg/lib/errors"
 	"admin-panel/pkg/lib/status"
@@ -17,15 +17,15 @@ import (
 )
 
 type UserHandler struct {
-	UserService    service.UserServiceInterface
-	UserRepository *repository.PostgresUserRepository
+	UserService    service.UserService
+	UserRepository repository.UserRepository
 	Router         *chi.Mux
 }
 
-func NewUserHandler(s service.UserServiceInterface, r *repository.PostgresUserRepository, router *chi.Mux) *UserHandler {
+func NewUserHandler(service service.UserService, repository repository.UserRepository, router *chi.Mux) *UserHandler {
 	return &UserHandler{
-		UserService:    s,
-		UserRepository: r,
+		UserService:    service,
+		UserRepository: repository,
 		Router:         router,
 	}
 }
