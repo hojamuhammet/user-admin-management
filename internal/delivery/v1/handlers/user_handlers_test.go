@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"admin-panel/internal/delivery/v1/handlers"
 	"admin-panel/internal/domain"
+	repoMocks "admin-panel/internal/mocks/repository"
 	mocks "admin-panel/internal/mocks/service"
 	"bytes"
 	"encoding/json"
@@ -20,6 +21,90 @@ import (
 )
 
 var dateOfBirth = time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
+
+func TestGetAllUsersHandler(t *testing.T) {
+	dateOfBirth, _ := time.Parse(time.RFC3339, "2000-01-01T00:00:00Z")
+	registrationDate, _ := time.Parse(time.RFC3339, "2022-01-01T00:00:00Z")
+
+	testCases := []struct {
+		name           string
+		page           int
+		pageSize       int
+		mockReturnUser *domain.UsersList
+		mockReturnErr  error
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:     "Success - First Page",
+			page:     1,
+			pageSize: 8,
+			mockReturnUser: &domain.UsersList{
+				Users: []domain.CommonUserResponse{
+					{
+						ID:               1,
+						FirstName:        "Kemal",
+						LastName:         "Atdayew",
+						PhoneNumber:      "+99362008971",
+						Gender:           "Male",
+						DateOfBirth:      dateOfBirth,
+						Location:         "Ashgabat",
+						Email:            "atdayewkemal@gmail.com",
+						ProfilePhotoURL:  "https://example.com/profile.jpg",
+						RegistrationDate: registrationDate,
+					},
+				},
+			},
+			mockReturnErr:  nil,
+			expectedStatus: http.StatusOK,
+			expectedBody:   `{"users":{"users":[{"id":1,"first_name":"Kemal","last_name":"Atdayew","phone_number":"+99362008971","blocked":false,"gender":"Male","registration_date":"2022-01-01T00:00:00Z","date_of_birth":"2000-01-01T00:00:00Z","location":"Ashgabat","email":"atdayewkemal@gmail.com","profile_photo_url":"https://example.com/profile.jpg"}]},"currentPage":1,"previousPage":1,"nextPage":2,"firstPage":1,"lastPage":2}`,
+		},
+		{
+			name:     "Success - Second Page",
+			page:     2,
+			pageSize: 8,
+			mockReturnUser: &domain.UsersList{
+				Users: []domain.CommonUserResponse{},
+			},
+			mockReturnErr:  nil,
+			expectedStatus: http.StatusOK,
+			expectedBody:   `{"users":{"users":[]},"currentPage":2,"previousPage":1,"nextPage":2,"firstPage":1,"lastPage":2}`,
+		},
+		{
+			name:           "Internal server error",
+			page:           1,
+			pageSize:       8,
+			mockReturnUser: nil,
+			mockReturnErr:  errors.New("internal server error"),
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `{"status":500,"message":"Internal server error"}`,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockUserService := new(mocks.MockUserService)
+			mockUserRepository := new(repoMocks.MockUserRepository)
+			router := chi.NewRouter()
+
+			handler := handlers.NewUserHandler(mockUserService, mockUserRepository, router)
+
+			mockUserService.On("GetAllUsers", tc.page, tc.pageSize).Return(tc.mockReturnUser, tc.mockReturnErr)
+			mockUserRepository.On("GetTotalUsersCount").Return(10, nil)
+
+			rr := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", fmt.Sprintf("/api/users?page=%d&pageSize=%d", tc.page, tc.pageSize), nil)
+
+			router.Get("/api/users", handler.GetAllUsersHandler)
+			router.ServeHTTP(rr, req)
+
+			assert.Equal(t, tc.expectedStatus, rr.Code)
+			assert.JSONEq(t, tc.expectedBody, strings.TrimSpace(rr.Body.String()))
+
+		})
+	}
+
+}
 
 func TestGetUserByIDHandler(t *testing.T) {
 	testCases := []struct {
@@ -473,6 +558,90 @@ func TestUnblockUserHandler(t *testing.T) {
 			if strings.TrimSpace(rr.Body.String()) != strings.TrimSpace(tt.expectedBody) {
 				t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), tt.expectedBody)
 			}
+		})
+	}
+}
+
+func TestSearchUsersHandler(t *testing.T) {
+	dateOfBirth, _ := time.Parse(time.RFC3339, "2000-01-01T00:00:00Z")
+	registrationDate, _ := time.Parse(time.RFC3339, "2022-01-01T00:00:00Z")
+
+	testCases := []struct {
+		name           string
+		query          string
+		page           int
+		pageSize       int
+		mockReturnUser *domain.UsersList
+		mockReturnErr  error
+		expectedStatus int
+		expectedBody   string
+	}{
+		{
+			name:     "Success - First Page",
+			query:    "test",
+			page:     1,
+			pageSize: 8,
+			mockReturnUser: &domain.UsersList{
+				Users: []domain.CommonUserResponse{
+					{
+						ID:               1,
+						FirstName:        "Kemal",
+						LastName:         "Atdayew",
+						PhoneNumber:      "+99362008971",
+						Gender:           "Male",
+						DateOfBirth:      dateOfBirth,
+						Location:         "Ashgabat",
+						Email:            "atdayewkemal@gmail.com",
+						ProfilePhotoURL:  "https://example.com/profile.jpg",
+						RegistrationDate: registrationDate,
+					},
+				},
+			},
+			mockReturnErr:  nil,
+			expectedStatus: http.StatusOK,
+			expectedBody:   `{"users":{"users":[{"id":1,"first_name":"Kemal","last_name":"Atdayew","phone_number":"+99362008971","blocked":false,"gender":"Male","registration_date":"2022-01-01T00:00:00Z","date_of_birth":"2000-01-01T00:00:00Z","location":"Ashgabat","email":"atdayewkemal@gmail.com","profile_photo_url":"https://example.com/profile.jpg"}]},"currentPage":1,"previousPage":1,"nextPage":2,"firstPage":1,"lastPage":2}`,
+		},
+		{
+			name:           "Internal server error",
+			query:          "test",
+			page:           1,
+			pageSize:       8,
+			mockReturnUser: nil,
+			mockReturnErr:  errors.New("internal server error"),
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `{"status":500,"message":"Internal server error"}`,
+		},
+		{
+			name:           "Error from UserRepository",
+			query:          "test",
+			page:           1,
+			pageSize:       8,
+			mockReturnUser: nil,
+			mockReturnErr:  errors.New("database error"),
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   `{"status":500,"message":"Internal server error"}`,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockUserService := new(mocks.MockUserService)
+			mockUserRepository := new(repoMocks.MockUserRepository)
+			router := chi.NewRouter()
+
+			handler := handlers.NewUserHandler(mockUserService, mockUserRepository, router)
+
+			mockUserService.On("SearchUsers", tc.query, tc.page, tc.pageSize).Return(tc.mockReturnUser, tc.mockReturnErr)
+			mockUserRepository.On("GetTotalUsersCount").Return(10, nil)
+
+			rr := httptest.NewRecorder()
+			req, _ := http.NewRequest("GET", fmt.Sprintf("/api/user?query=%s&page=%d&pageSize=%d", tc.query, tc.page, tc.pageSize), nil)
+
+			router.Get("/api/user", handler.SearchUsersHandler)
+			router.ServeHTTP(rr, req)
+
+			assert.Equal(t, tc.expectedStatus, rr.Code)
+			assert.JSONEq(t, tc.expectedBody, strings.TrimSpace(rr.Body.String()))
 		})
 	}
 }
