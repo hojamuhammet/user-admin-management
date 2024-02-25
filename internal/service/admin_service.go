@@ -22,15 +22,15 @@ func (s *AdminService) GetTotalAdminsCount() (int, error) {
 	return s.AdminRepository.GetTotalAdminsCount()
 }
 
-func (s *AdminService) GetAdminByID(id int32) (*domain.CommonAdminResponse, error) {
+func (s *AdminService) GetAdminByID(id int32) (*domain.GetAdminResponse, error) {
 	return s.AdminRepository.GetAdminByID(id)
 }
 
-func (s *AdminService) CreateAdmin(request *domain.CreateAdminRequest) (*domain.CommonAdminResponse, error) {
+func (s *AdminService) CreateAdmin(request *domain.CreateAdminRequest) (*domain.CreateAdminResponse, error) {
 	return s.AdminRepository.CreateAdmin(request)
 }
 
-func (s *AdminService) UpdateAdmin(id int32, request *domain.UpdateAdminRequest) (*domain.CommonAdminResponse, error) {
+func (s *AdminService) UpdateAdmin(id int32, request *domain.UpdateAdminRequest) (*domain.UpdateAdminResponse, error) {
 	return s.AdminRepository.UpdateAdmin(id, request)
 }
 

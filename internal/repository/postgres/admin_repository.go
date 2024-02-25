@@ -44,9 +44,9 @@ func (r *PostgresAdminRepository) GetAllAdmins(page, pageSize int) (*domain.Admi
 	}
 	defer rows.Close()
 
-	adminList := domain.AdminsList{Admins: make([]domain.CommonAdminResponse, 0)}
+	adminList := domain.AdminsList{Admins: make([]domain.GetAdminResponse, 0)}
 	for rows.Next() {
-		var admin domain.CommonAdminResponse
+		var admin domain.GetAdminResponse
 		if err := rows.Scan(&admin.ID, &admin.Username, &admin.Role); err != nil {
 			slog.Error("Error scanning admin row: %v", utils.Err(err))
 			return nil, err
@@ -73,7 +73,7 @@ func (r *PostgresAdminRepository) GetTotalAdminsCount() (int, error) {
 	return totalAdmins, nil
 }
 
-func (r *PostgresAdminRepository) GetAdminByID(id int32) (*domain.CommonAdminResponse, error) {
+func (r *PostgresAdminRepository) GetAdminByID(id int32) (*domain.GetAdminResponse, error) {
 	stmt, err := r.DB.Prepare(`
 		SELECT id, username, role
 		FROM admins
@@ -87,7 +87,7 @@ func (r *PostgresAdminRepository) GetAdminByID(id int32) (*domain.CommonAdminRes
 
 	row := stmt.QueryRowContext(context.TODO(), id)
 
-	var admin domain.CommonAdminResponse
+	var admin domain.GetAdminResponse
 
 	err = row.Scan(
 		&admin.ID,
@@ -106,7 +106,7 @@ func (r *PostgresAdminRepository) GetAdminByID(id int32) (*domain.CommonAdminRes
 	return &admin, nil
 }
 
-func (r *PostgresAdminRepository) CreateAdmin(request *domain.CreateAdminRequest) (*domain.CommonAdminResponse, error) {
+func (r *PostgresAdminRepository) CreateAdmin(request *domain.CreateAdminRequest) (*domain.CreateAdminResponse, error) {
 	if request.Username == "" || request.Password == "" || request.Role == "" {
 		return nil, fmt.Errorf("username, password, and role are required fields")
 	}
@@ -138,7 +138,7 @@ func (r *PostgresAdminRepository) CreateAdmin(request *domain.CreateAdminRequest
 	}
 	defer stmt.Close()
 
-	var admin domain.CommonAdminResponse
+	var admin domain.CreateAdminResponse
 
 	err = stmt.QueryRow(
 		request.Username,
@@ -158,7 +158,7 @@ func (r *PostgresAdminRepository) CreateAdmin(request *domain.CreateAdminRequest
 	return &admin, nil
 }
 
-func (r *PostgresAdminRepository) UpdateAdmin(id int32, request *domain.UpdateAdminRequest) (*domain.CommonAdminResponse, error) {
+func (r *PostgresAdminRepository) UpdateAdmin(id int32, request *domain.UpdateAdminRequest) (*domain.UpdateAdminResponse, error) {
 	updateQuery := `UPDATE admins SET
                     username = $1,
                     password = $2,
@@ -173,7 +173,7 @@ func (r *PostgresAdminRepository) UpdateAdmin(id int32, request *domain.UpdateAd
 	}
 	defer stmt.Close()
 
-	var admin domain.CommonAdminResponse
+	var admin domain.UpdateAdminResponse
 
 	err = stmt.QueryRow(
 		request.Username,
@@ -250,9 +250,9 @@ func (r *PostgresAdminRepository) SearchAdmins(query string, page, pageSize int)
 	}
 	defer rows.Close()
 
-	adminList := domain.AdminsList{Admins: make([]domain.CommonAdminResponse, 0)}
+	adminList := domain.AdminsList{Admins: make([]domain.GetAdminResponse, 0)}
 	for rows.Next() {
-		var admin domain.CommonAdminResponse
+		var admin domain.GetAdminResponse
 		if err := rows.Scan(&admin.ID, &admin.Username, &admin.Role); err != nil {
 			slog.Error("Error scanning admin row: %v", utils.Err(err))
 			return nil, err
