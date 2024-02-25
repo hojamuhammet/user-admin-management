@@ -24,18 +24,16 @@ func NewPostgresAdminAuthRepository(db *sql.DB, jwtConfig config.JWT) *PostgresA
 }
 
 const (
-	accessTokenExpiration  = 30 * time.Minute
+	accessTokenExpiration  = 120 * time.Minute // set to 30 mins
 	refreshTokenExpiration = 7 * 24 * time.Hour
 )
 
 func (r *PostgresAdminAuthRepository) GenerateTokenPair(admin *domain.Admin) (string, string, error) {
-	// Generate a new access token
 	accessToken, err := r.generateAccessToken(admin)
 	if err != nil {
 		return "", "", err
 	}
 
-	// Generate a new refresh token
 	refreshToken, err := r.generateRefreshToken(admin)
 	if err != nil {
 		return "", "", err
