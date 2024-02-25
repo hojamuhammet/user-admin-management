@@ -4,14 +4,11 @@ import (
 	"admin-panel/internal/domain"
 	mocks "admin-panel/internal/mocks/repository"
 	repository "admin-panel/internal/repository/postgres"
-	"admin-panel/internal/service"
-	"errors"
 	"testing"
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestGetAllUsers(t *testing.T) {
@@ -20,429 +17,484 @@ func TestGetAllUsers(t *testing.T) {
 
 	repo := repository.NewPostgresUserRepository(db)
 
-	expectedUsers := []domain.CommonUserResponse{
-		{
-			ID:               1,
-			FirstName:        "John",
-			LastName:         "Doe",
-			PhoneNumber:      "1234567890",
-			Blocked:          false,
-			Gender:           "Male",
-			RegistrationDate: time.Now(),
-			DateOfBirth:      time.Now(),
-			Location:         "Location1",
-			Email:            "john.doe@example.com",
-			ProfilePhotoURL:  "https://example.com/john.jpg",
-		},
-	}
-
-	query := `SELECT id, first_name, last_name, phone_number, blocked, registration_date, gender, date_of_birth, location, email, profile_photo_url FROM users ORDER BY id LIMIT \$1 OFFSET \$2`
-
-	rows := sqlmock.NewRows([]string{"id", "first_name", "last_name", "phone_number", "blocked", "registration_date", "gender", "date_of_birth", "location", "email", "profile_photo_url"})
-	for _, user := range expectedUsers {
-		rows.AddRow(user.ID, user.FirstName, user.LastName, user.PhoneNumber, user.Blocked, user.RegistrationDate, user.Gender, user.DateOfBirth, user.Location, user.Email, user.ProfilePhotoURL)
-	}
-	mock.ExpectPrepare(query)
-	mock.ExpectQuery(query).WithArgs(10, 0).WillReturnRows(rows)
-
-	users, _ := repo.GetAllUsers(1, 10)
-
-	assert.Equal(t, expectedUsers, users.Users)
-}
-
-func TestGetUserByID(t *testing.T) {
-	mockRepo := mocks.NewUserRepositoryMock()
-
-	registrationDate, _ := time.Parse(time.RFC3339, "2002-06-08T00:00:00Z")
-	dateOfBirth, _ := time.Parse(time.RFC3339, "2024-02-16T22:48:15Z")
-
-	expectedUser := &domain.GetUserResponse{
-		ID:               66,
-		FirstName:        "",
-		LastName:         "",
-		PhoneNumber:      "+99376065810",
-		Blocked:          false,
-		Gender:           "",
-		RegistrationDate: registrationDate,
-		DateOfBirth:      dateOfBirth,
-		Location:         "",
-		Email:            "",
-		ProfilePhotoURL:  "",
-	}
-	mockRepo.GetUserByIDFunc = func(id int32) (*domain.GetUserResponse, error) {
-		if id == expectedUser.ID {
-			return expectedUser, nil
-		}
-		return nil, errors.New("user not found")
-	}
-
-	userService := service.NewUserService(mockRepo)
-
-	user, err := userService.GetUserByID(66)
-
-	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
-	}
-	if user == nil {
-		t.Error("Expected user, got nil")
-	} else if user.ID != expectedUser.ID {
-		t.Errorf("Expected user ID to be %d, got %d", expectedUser.ID, user.ID)
-	}
-}
-
-func TestCreateUser(t *testing.T) {
-	mockRepo := mocks.NewUserRepositoryMock()
-
 	testCases := []struct {
-		Name             string
-		CreateUserFields map[string]interface{}
-		ExpectedResponse *domain.CreateUserResponse
-		ExpectedError    error
+		name           string
+		page           int
+		limit          int
+		mockUsers      []domain.CommonUserResponse
+		expectedLength int
 	}{
 		{
-			Name: "CreateUser with only first name",
-			CreateUserFields: map[string]interface{}{
-				"FirstName":   "John",
-				"PhoneNumber": "+99362008971",
+			name:  "Success - Users exist",
+			page:  1,
+			limit: 10,
+			mockUsers: []domain.CommonUserResponse{
+				{
+					ID:               1,
+					FirstName:        "John",
+					LastName:         "Doe",
+					PhoneNumber:      "1234567890",
+					Blocked:          false,
+					Gender:           "Male",
+					RegistrationDate: time.Now(),
+					DateOfBirth:      time.Now(),
+					Location:         "Location1",
+					Email:            "john.doe@example.com",
+					ProfilePhotoURL:  "https://example.com/john.jpg",
+				},
 			},
-			ExpectedResponse: &domain.CreateUserResponse{ID: 1},
-			ExpectedError:    nil,
+			expectedLength: 1,
 		},
 		{
-			Name: "CreateUser with only last name",
-			CreateUserFields: map[string]interface{}{
-				"LastName":    "Doe",
-				"PhoneNumber": "+99362008971",
-			},
-			ExpectedResponse: &domain.CreateUserResponse{ID: 1},
-			ExpectedError:    nil,
+			name:           "Failure - No users exist",
+			page:           1,
+			limit:          10,
+			mockUsers:      []domain.CommonUserResponse{},
+			expectedLength: 0,
 		},
 		{
-			Name: "CreateUser with only gender",
-			CreateUserFields: map[string]interface{}{
-				"Gender":      "Male",
-				"PhoneNumber": "+99362008971",
-			},
-			ExpectedResponse: &domain.CreateUserResponse{ID: 1},
-			ExpectedError:    nil,
-		},
-		{
-			Name: "CreateUser with only date of birth",
-			CreateUserFields: map[string]interface{}{
-				"DateOfBirth": time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
-				"PhoneNumber": "+99362008971",
-			},
-			ExpectedResponse: &domain.CreateUserResponse{ID: 1},
-			ExpectedError:    nil,
-		},
-		{
-			Name: "CreateUser with only location",
-			CreateUserFields: map[string]interface{}{
-				"Location":    "Ashgabat",
-				"PhoneNumber": "+99362008971",
-			},
-			ExpectedResponse: &domain.CreateUserResponse{ID: 1},
-			ExpectedError:    nil,
-		},
-		{
-			Name: "CreateUser with only email",
-			CreateUserFields: map[string]interface{}{
-				"Email":       "asdasdasd@gmail.com",
-				"PhoneNumber": "+99362008971",
-			},
-			ExpectedResponse: &domain.CreateUserResponse{ID: 1},
-			ExpectedError:    nil,
-		},
-		{
-			Name: "CreateUser with only profile photo url",
-			CreateUserFields: map[string]interface{}{
-				"ProfilePhotoURL": "my_photo.jpeg",
-				"PhoneNumber":     "+99362008971",
-			},
-			ExpectedResponse: &domain.CreateUserResponse{ID: 1},
-			ExpectedError:    nil,
+			name:           "Failure - Requested page number exceeds total pages",
+			page:           3,
+			limit:          10,
+			mockUsers:      []domain.CommonUserResponse{},
+			expectedLength: 0,
 		},
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.Name, func(t *testing.T) {
-			mockRepo.CreateUserFunc = func(request *domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
-				for field, value := range tc.CreateUserFields {
-					if val, ok := value.(string); ok {
-						switch field {
-						case "FirstName":
-							request.FirstName = val
-						case "LastName":
-							request.LastName = val
-						case "Gender":
-							request.Gender = val
-						case "Location":
-							request.Location = val
-						case "Email":
-							request.Email = val
-						case "ProfilePhotoURL":
-							request.ProfilePhotoURL = val
-						}
-					}
-					if field == "DateOfBirth" {
-						if val, ok := value.(time.Time); ok {
-							request.DateOfBirth = val
-						}
-					}
-				}
-				return tc.ExpectedResponse, nil
+		t.Run(tc.name, func(t *testing.T) {
+			query := `SELECT id, first_name, last_name, phone_number, blocked, registration_date, gender, date_of_birth, location, email, profile_photo_url FROM users ORDER BY id LIMIT \$1 OFFSET \$2`
+
+			rows := sqlmock.NewRows([]string{"id", "first_name", "last_name", "phone_number", "blocked", "registration_date", "gender", "date_of_birth", "location", "email", "profile_photo_url"})
+			for _, user := range tc.mockUsers {
+				rows.AddRow(user.ID, user.FirstName, user.LastName, user.PhoneNumber, user.Blocked, user.RegistrationDate, user.Gender, user.DateOfBirth, user.Location, user.Email, user.ProfilePhotoURL)
 			}
+			mock.ExpectPrepare(query)
+			mock.ExpectQuery(query).WithArgs(tc.limit, (tc.page-1)*tc.limit).WillReturnRows(rows)
 
-			userService := service.NewUserService(mockRepo)
+			users, _ := repo.GetAllUsers(tc.page, tc.limit)
 
-			createUserRequest := &domain.CreateUserRequest{
-				PhoneNumber: tc.CreateUserFields["PhoneNumber"].(string),
-			}
+			assert.Equal(t, tc.expectedLength, len(users.Users))
+		})
+	}
+}
 
-			response, err := userService.CreateUser(createUserRequest)
+func TestGetTotalUsersCount(t *testing.T) {
+	db, mock, _ := sqlmock.New()
+	defer db.Close()
+
+	repo := repository.NewPostgresUserRepository(db)
+
+	testCases := []struct {
+		name               string
+		mockTotalUsers     int
+		expectedTotalUsers int
+	}{
+		{
+			name:               "DatabaseHasUsers",
+			mockTotalUsers:     10,
+			expectedTotalUsers: 10,
+		},
+		{
+			name:               "DatabaseIsEmpty",
+			mockTotalUsers:     0,
+			expectedTotalUsers: 0,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			query := "SELECT COUNT\\(\\*\\) FROM users"
+			rows := sqlmock.NewRows([]string{"count"}).AddRow(tc.mockTotalUsers)
+			mock.ExpectQuery(query).WillReturnRows(rows)
+
+			totalUsers, err := repo.GetTotalUsersCount()
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectedTotalUsers, totalUsers)
+		})
+	}
+}
+func TestGetUserByID(t *testing.T) {
+	testCases := []struct {
+		name           string
+		id             int32
+		mockReturnUser *domain.GetUserResponse
+		mockReturnErr  error
+		expectedErr    error
+	}{
+		{
+			name: "Success",
+			id:   1,
+			mockReturnUser: &domain.GetUserResponse{
+				ID:              1,
+				FirstName:       "Kemal",
+				LastName:        "Atdayew",
+				PhoneNumber:     "+99362008971",
+				Gender:          "Male",
+				Location:        "Ashgabat",
+				Email:           "atdayewkemal@gmail.com",
+				ProfilePhotoURL: "https://example.com/profile.jpg",
+			},
+			mockReturnErr: nil,
+			expectedErr:   nil,
+		},
+		{
+			name:           "User Not Found",
+			id:             2,
+			mockReturnUser: nil,
+			mockReturnErr:  domain.ErrUserNotFound,
+			expectedErr:    domain.ErrUserNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockUserRepository := new(mocks.MockUserRepository)
+
+			mockUserRepository.ExpectedCalls = nil
+
+			mockUserRepository.On("GetUserByID", tc.id).Return(tc.mockReturnUser, tc.mockReturnErr)
+
+			user, err := mockUserRepository.GetUserByID(tc.id)
 
 			if err != nil {
-				if tc.ExpectedError == nil || err.Error() != tc.ExpectedError.Error() {
-					t.Errorf("Unexpected error: %v", err)
-				}
+				assert.Equal(t, tc.expectedErr, err)
 			} else {
-				if response == nil {
-					t.Error("Expected response, got nil")
-				}
+				assert.Equal(t, tc.mockReturnUser, user)
+			}
+		})
+	}
+}
+
+func TestCreateUser(t *testing.T) {
+	testCases := []struct {
+		name           string
+		request        *domain.CreateUserRequest
+		mockReturnUser *domain.CreateUserResponse
+		mockReturnErr  error
+		expectedErr    error
+	}{
+		{
+			name: "Success",
+			request: &domain.CreateUserRequest{
+				FirstName:       "Kemal",
+				LastName:        "Atdayew",
+				PhoneNumber:     "+99362008971",
+				Gender:          "Male",
+				Location:        "Ashgabat",
+				Email:           "atdayewkemal@gmail.com",
+				ProfilePhotoURL: "https://example.com/profile.jpg",
+			},
+			mockReturnUser: &domain.CreateUserResponse{
+				ID:              1,
+				FirstName:       "Kemal",
+				LastName:        "Atdayew",
+				PhoneNumber:     "+99362008971",
+				Gender:          "Male",
+				Location:        "Ashgabat",
+				Email:           "atdayewkemal@gmail.com",
+				ProfilePhotoURL: "https://example.com/profile.jpg",
+			},
+			mockReturnErr: nil,
+			expectedErr:   nil,
+		},
+		{
+			name: "Invalid Phone Number",
+			request: &domain.CreateUserRequest{
+				FirstName:       "Kemal",
+				LastName:        "Atdayew",
+				PhoneNumber:     "invalid",
+				Gender:          "Male",
+				Location:        "Ashgabat",
+				Email:           "atdayewkemal@gmail.com",
+				ProfilePhotoURL: "https://example.com/profile.jpg",
+			},
+			mockReturnUser: nil,
+			mockReturnErr:  domain.ErrInvalidPhoneNumber,
+			expectedErr:    domain.ErrInvalidPhoneNumber,
+		},
+		{
+			name: "Email In Use",
+			request: &domain.CreateUserRequest{
+				FirstName:       "Kemal",
+				LastName:        "Atdayew",
+				PhoneNumber:     "+99362008971",
+				Gender:          "Male",
+				Location:        "Ashgabat",
+				Email:           "atdayewkemal@gmail.com",
+				ProfilePhotoURL: "https://example.com/profile.jpg",
+			},
+			mockReturnUser: nil,
+			mockReturnErr:  domain.ErrEmailInUse,
+			expectedErr:    domain.ErrEmailInUse,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockUserRepository := new(mocks.MockUserRepository)
+
+			mockUserRepository.On("CreateUser", tc.request).Return(tc.mockReturnUser, tc.mockReturnErr)
+
+			user, err := mockUserRepository.CreateUser(tc.request)
+
+			if err != nil {
+				assert.Equal(t, tc.expectedErr, err)
+			} else {
+				assert.Equal(t, tc.mockReturnUser, user)
 			}
 		})
 	}
 }
 
 func TestUpdateUser(t *testing.T) {
-	mockRepo := mocks.NewUserRepositoryMock()
-
 	testCases := []struct {
-		Name             string
-		UpdateUserFields map[string]interface{}
-		ExpectedResponse *domain.UpdateUserResponse
-		ExpectedError    error
+		name           string
+		id             int32
+		request        *domain.UpdateUserRequest
+		mockReturnUser *domain.UpdateUserResponse
+		mockReturnErr  error
+		expectedErr    error
 	}{
 		{
-			Name: "UpdateUser with only first name",
-			UpdateUserFields: map[string]interface{}{
-				"FirstName": "John",
+			name: "Success",
+			id:   1,
+			request: &domain.UpdateUserRequest{
+				FirstName:       "Kemal",
+				LastName:        "Atdayew",
+				Gender:          "Male",
+				Location:        "Ashgabat",
+				Email:           "atdayewkemal@gmail.com",
+				ProfilePhotoURL: "https://example.com/profile.jpg",
 			},
-			ExpectedResponse: &domain.UpdateUserResponse{ID: 1},
-			ExpectedError:    nil,
+			mockReturnUser: &domain.UpdateUserResponse{
+				ID:              1,
+				FirstName:       "Kemal",
+				LastName:        "Atdayew",
+				PhoneNumber:     "+99362008971",
+				Gender:          "Male",
+				Location:        "Ashgabat",
+				Email:           "atdayewkemal@gmail.com",
+				ProfilePhotoURL: "https://example.com/profile.jpg",
+			},
+			mockReturnErr: nil,
+			expectedErr:   nil,
 		},
 		{
-			Name: "UpdateUser with only last name",
-			UpdateUserFields: map[string]interface{}{
-				"LastName": "Doe",
+			name: "User Not Found",
+			id:   2,
+			request: &domain.UpdateUserRequest{
+				FirstName:       "Kemal",
+				LastName:        "Atdayew",
+				Gender:          "Male",
+				Location:        "Ashgabat",
+				Email:           "atdayewkemal@gmail.com",
+				ProfilePhotoURL: "https://example.com/profile.jpg",
 			},
-			ExpectedResponse: &domain.UpdateUserResponse{ID: 1},
-			ExpectedError:    nil,
+			mockReturnUser: nil,
+			mockReturnErr:  domain.ErrUserNotFound,
+			expectedErr:    domain.ErrUserNotFound,
 		},
 		{
-			Name: "UpdateUser with only gender",
-			UpdateUserFields: map[string]interface{}{
-				"Gender": "Male",
+			name: "Email In Use",
+			id:   3,
+			request: &domain.UpdateUserRequest{
+				FirstName:       "Kemal",
+				LastName:        "Atdayew",
+				Gender:          "Male",
+				Location:        "Ashgabat",
+				Email:           "atdayewkemal@gmail.com",
+				ProfilePhotoURL: "https://example.com/profile.jpg",
 			},
-			ExpectedResponse: &domain.UpdateUserResponse{ID: 1},
-			ExpectedError:    nil,
-		},
-		{
-			Name: "UpdateUser with only date of birth",
-			UpdateUserFields: map[string]interface{}{
-				"DateOfBirth": time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
-			},
-			ExpectedResponse: &domain.UpdateUserResponse{ID: 1},
-			ExpectedError:    nil,
-		},
-		{
-			Name: "UpdateUser with only location",
-			UpdateUserFields: map[string]interface{}{
-				"Location": "Ashgabat",
-			},
-			ExpectedResponse: &domain.UpdateUserResponse{ID: 1},
-			ExpectedError:    nil,
-		},
-		{
-			Name: "UpdateUser with only email",
-			UpdateUserFields: map[string]interface{}{
-				"Email": "asdasdasd@gmail.com",
-			},
-			ExpectedResponse: &domain.UpdateUserResponse{ID: 1},
-			ExpectedError:    nil,
-		},
-		{
-			Name: "UpdateUser with only profile photo URL",
-			UpdateUserFields: map[string]interface{}{
-				"ProfilePhotoURL": "my_photo.jpeg",
-			},
-			ExpectedResponse: &domain.UpdateUserResponse{ID: 1},
-			ExpectedError:    nil,
+			mockReturnUser: nil,
+			mockReturnErr:  domain.ErrEmailInUse,
+			expectedErr:    domain.ErrEmailInUse,
 		},
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.Name, func(t *testing.T) {
-			mockRepo.UpdateUserFunc = func(userID int32, request *domain.UpdateUserRequest) (*domain.UpdateUserResponse, error) {
-				for field, value := range tc.UpdateUserFields {
-					if val, ok := value.(string); ok {
-						switch field {
-						case "FirstName":
-							request.FirstName = val
-						case "LastName":
-							request.LastName = val
-						case "Gender":
-							request.Gender = val
-						case "Location":
-							request.Location = val
-						case "Email":
-							request.Email = val
-						case "ProfilePhotoURL":
-							request.ProfilePhotoURL = val
-						}
-					}
-					if field == "DateOfBirth" {
-						if val, ok := value.(time.Time); ok {
-							request.DateOfBirth = val
-						}
-					}
-				}
-				return tc.ExpectedResponse, nil
-			}
-
-			userService := service.NewUserService(mockRepo)
-
-			updateUserRequest := &domain.UpdateUserRequest{}
-			for field, value := range tc.UpdateUserFields {
-				if val, ok := value.(string); ok {
-					switch field {
-					case "FirstName":
-						updateUserRequest.FirstName = val
-					case "LastName":
-						updateUserRequest.LastName = val
-					case "Gender":
-						updateUserRequest.Gender = val
-					case "Location":
-						updateUserRequest.Location = val
-					case "Email":
-						updateUserRequest.Email = val
-					case "ProfilePhotoURL":
-						updateUserRequest.ProfilePhotoURL = val
-					}
-				}
-			}
-
-			userID := int32(1)
-
-			response, err := userService.UpdateUser(userID, updateUserRequest)
-
+		t.Run(tc.name, func(t *testing.T) {
+			mockUserRepository := new(mocks.MockUserRepository)
+			mockUserRepository.On("UpdateUser", tc.id, tc.request).Return(tc.mockReturnUser, tc.mockReturnErr)
+			user, err := mockUserRepository.UpdateUser(tc.id, tc.request)
 			if err != nil {
-				if tc.ExpectedError == nil || err.Error() != tc.ExpectedError.Error() {
-					t.Errorf("Test case '%s' failed: unexpected error: %v", tc.Name, err)
-				}
+				assert.Equal(t, tc.expectedErr, err)
 			} else {
-				if response == nil {
-					t.Errorf("Test case '%s' failed: expected non-nil response, got nil", tc.Name)
-				}
+				assert.Equal(t, tc.mockReturnUser, user)
 			}
 		})
 	}
 }
 
 func TestDeleteUser(t *testing.T) {
-	mockRepo := mocks.NewUserRepositoryMock()
-
-	userID := int32(38)
-	mockRepo.DeleteUserFunc = func(id int32) error {
-		if id == userID {
-			return nil
-		}
-		return errors.New("user not found")
+	testCases := []struct {
+		name          string
+		id            int32
+		mockReturnErr error
+		expectedErr   error
+	}{
+		{
+			name:          "Success",
+			id:            1,
+			mockReturnErr: nil,
+			expectedErr:   nil,
+		},
+		{
+			name:          "User Not Found",
+			id:            2,
+			mockReturnErr: domain.ErrUserNotFound,
+			expectedErr:   domain.ErrUserNotFound,
+		},
 	}
 
-	userService := service.NewUserService(mockRepo)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockUserRepository := new(mocks.MockUserRepository)
 
-	err := userService.DeleteUser(userID)
+			mockUserRepository.On("DeleteUser", tc.id).Return(tc.mockReturnErr)
 
-	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+			err := mockUserRepository.DeleteUser(tc.id)
+
+			assert.Equal(t, tc.expectedErr, err)
+		})
 	}
 }
 
 func TestBlockUser(t *testing.T) {
-	mockRepo := mocks.NewUserRepositoryMock()
-
-	userID := int32(38)
-	mockRepo.BlockUserFunc = func(id int32) error {
-		if id == userID {
-			return nil
-		}
-		return errors.New("user not found")
+	testCases := []struct {
+		name          string
+		id            int32
+		mockReturnErr error
+		expectedErr   error
+	}{
+		{
+			name:          "Success",
+			id:            1,
+			mockReturnErr: nil,
+			expectedErr:   nil,
+		},
+		{
+			name:          "User Not Found",
+			id:            2,
+			mockReturnErr: domain.ErrUserNotFound,
+			expectedErr:   domain.ErrUserNotFound,
+		},
 	}
 
-	userService := service.NewUserService(mockRepo)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockUserRepository := new(mocks.MockUserRepository)
 
-	err := userService.BlockUser(userID)
+			mockUserRepository.On("BlockUser", tc.id).Return(tc.mockReturnErr)
 
-	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+			err := mockUserRepository.BlockUser(tc.id)
+
+			assert.Equal(t, tc.expectedErr, err)
+		})
 	}
 }
 
 func TestUnblockUser(t *testing.T) {
-	mockRepo := mocks.NewUserRepositoryMock()
-
-	userID := int32(38)
-	mockRepo.UnblockUserFunc = func(id int32) error {
-		if id == userID {
-			return nil
-		}
-		return errors.New("user not found")
+	testCases := []struct {
+		name          string
+		id            int32
+		mockReturnErr error
+		expectedErr   error
+	}{
+		{
+			name:          "Success",
+			id:            1,
+			mockReturnErr: nil,
+			expectedErr:   nil,
+		},
+		{
+			name:          "User Not Found",
+			id:            2,
+			mockReturnErr: domain.ErrUserNotFound,
+			expectedErr:   domain.ErrUserNotFound,
+		},
 	}
 
-	userService := service.NewUserService(mockRepo)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockUserRepository := new(mocks.MockUserRepository)
 
-	err := userService.UnblockUser(userID)
+			mockUserRepository.On("UnblockUser", tc.id).Return(tc.mockReturnErr)
 
-	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
+			err := mockUserRepository.UnblockUser(tc.id)
+
+			assert.Equal(t, tc.expectedErr, err)
+		})
 	}
 }
 
 func TestSearchUsers(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	require.NoError(t, err)
+	db, mock, _ := sqlmock.New()
 	defer db.Close()
 
 	repo := repository.NewPostgresUserRepository(db)
 
-	expectedUsers := []domain.CommonUserResponse{
+	testCases := []struct {
+		name              string
+		query             string
+		page              int
+		pageSize          int
+		mockUsers         []domain.CommonUserResponse
+		expectedUserCount int
+	}{
 		{
-			ID:               1,
-			FirstName:        "Kemal",
-			LastName:         "Atdayew",
-			PhoneNumber:      "1234567890",
-			Blocked:          false,
-			Gender:           "Male",
-			RegistrationDate: time.Now(),
-			DateOfBirth:      time.Now(),
-			Location:         "Location1",
-			Email:            "kemal.atdayew@example.com",
-			ProfilePhotoURL:  "https://example.com/john.jpg",
+			name:     "Success - Users found",
+			query:    "John",
+			page:     1,
+			pageSize: 10,
+			mockUsers: []domain.CommonUserResponse{
+				{
+					ID:               1,
+					FirstName:        "John",
+					LastName:         "Doe",
+					PhoneNumber:      "1234567890",
+					Blocked:          false,
+					Gender:           "Male",
+					RegistrationDate: time.Now(),
+					DateOfBirth:      time.Now(),
+					Location:         "Location1",
+					Email:            "john.doe@example.com",
+					ProfilePhotoURL:  "https://example.com/john.jpg",
+				},
+			},
+			expectedUserCount: 1,
+		},
+		{
+			name:              "Failure - No users found",
+			query:             "Nonexistent",
+			page:              1,
+			pageSize:          10,
+			mockUsers:         []domain.CommonUserResponse{},
+			expectedUserCount: 0,
 		},
 	}
 
-	searchQuery := `SELECT id, first_name, last_name, phone_number, blocked, registration_date, gender, date_of_birth, location, email, profile_photo_url FROM users WHERE first_name ILIKE \$1 OR last_name ILIKE \$1 OR phone_number ILIKE \$1 OR email ILIKE \$1 ORDER BY id LIMIT \$2 OFFSET \$3`
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			searchQuery := `
+				SELECT id, first_name, last_name, phone_number, blocked,
+				registration_date, gender, date_of_birth, location,
+				email, profile_photo_url
+				FROM users
+				WHERE first_name ILIKE \$1 OR last_name ILIKE \$1 OR phone_number ILIKE \$1 OR email ILIKE \$1
+				ORDER BY id
+				LIMIT \$2 OFFSET \$3
+			`
+			rows := sqlmock.NewRows([]string{"id", "first_name", "last_name", "phone_number", "blocked", "registration_date", "gender", "date_of_birth", "location", "email", "profile_photo_url"})
+			for _, user := range tc.mockUsers {
+				rows.AddRow(user.ID, user.FirstName, user.LastName, user.PhoneNumber, user.Blocked, user.RegistrationDate, user.Gender, user.DateOfBirth, user.Location, user.Email, user.ProfilePhotoURL)
+			}
+			mock.ExpectPrepare(searchQuery)
+			mock.ExpectQuery(searchQuery).WithArgs("%"+tc.query+"%", tc.pageSize, (tc.page-1)*tc.pageSize).WillReturnRows(rows)
 
-	rows := sqlmock.NewRows([]string{"id", "first_name", "last_name", "phone_number", "blocked", "registration_date", "gender", "date_of_birth", "location", "email", "profile_photo_url"})
-	for _, user := range expectedUsers {
-		rows.AddRow(user.ID, user.FirstName, user.LastName, user.PhoneNumber, user.Blocked, user.RegistrationDate, user.Gender, user.DateOfBirth, user.Location, user.Email, user.ProfilePhotoURL)
+			users, _ := repo.SearchUsers(tc.query, tc.page, tc.pageSize)
+
+			assert.Equal(t, tc.expectedUserCount, len(users.Users))
+		})
 	}
-	mock.ExpectPrepare(searchQuery)
-	mock.ExpectQuery(searchQuery).WithArgs("%Kemal%", 10, 0).WillReturnRows(rows)
-
-	users, err := repo.SearchUsers("Kemal", 1, 10)
-	require.NoError(t, err)
-
-	assert.Equal(t, expectedUsers, users.Users)
 }
