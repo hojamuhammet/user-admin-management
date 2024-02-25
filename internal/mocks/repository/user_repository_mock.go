@@ -2,76 +2,55 @@ package mocks
 
 import (
 	"admin-panel/internal/domain"
-	"errors"
+
+	"github.com/stretchr/testify/mock"
 )
 
-type UserRepositoryMock struct {
-	GetAllUsersFunc func(page, pageSize int) (*domain.UsersList, error)
-	GetUserByIDFunc func(id int32) (*domain.GetUserResponse, error)
-	CreateUserFunc  func(request *domain.CreateUserRequest) (*domain.CreateUserResponse, error)
-	UpdateUserFunc  func(id int32, request *domain.UpdateUserRequest) (*domain.UpdateUserResponse, error)
-	DeleteUserFunc  func(id int32) error
-	BlockUserFunc   func(id int32) error
-	UnblockUserFunc func(id int32) error
-	SearchUsersFunc func(query string, page, pageSize int) (*domain.UsersList, error)
+type MockUserRepository struct {
+	mock.Mock
 }
 
-func NewUserRepositoryMock() *UserRepositoryMock {
-	return &UserRepositoryMock{}
+func (m *MockUserRepository) GetAllUsers(page, pageSize int) (*domain.UsersList, error) {
+	args := m.Called(page, pageSize)
+	return args.Get(0).(*domain.UsersList), args.Error(1)
 }
 
-func (m *UserRepositoryMock) GetAllUsers(page, pageSize int) (*domain.UsersList, error) {
-	if m.GetAllUsersFunc != nil {
-		return m.GetAllUsersFunc(page, pageSize)
-	}
-	return nil, errors.New("GetAllUsers is not implemented in the mock")
+func (m *MockUserRepository) GetTotalUsersCount() (int, error) {
+	args := m.Called()
+	return args.Int(0), args.Error(1)
 }
 
-func (m *UserRepositoryMock) GetUserByID(id int32) (*domain.GetUserResponse, error) {
-	if m.GetUserByIDFunc != nil {
-		return m.GetUserByIDFunc(id)
-	}
-	return nil, errors.New("GetUserByID is not implemented in the mock")
+func (m *MockUserRepository) GetUserByID(id int32) (*domain.GetUserResponse, error) {
+	args := m.Called(id)
+	return args.Get(0).(*domain.GetUserResponse), args.Error(1)
 }
 
-func (m *UserRepositoryMock) CreateUser(request *domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
-	if m.CreateUserFunc != nil {
-		return m.CreateUserFunc(request)
-	}
-	return nil, errors.New("CreateUser is not implemented in the mock")
+func (m *MockUserRepository) CreateUser(request *domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
+	args := m.Called(request)
+	return args.Get(0).(*domain.CreateUserResponse), args.Error(1)
 }
 
-func (m *UserRepositoryMock) UpdateUser(id int32, request *domain.UpdateUserRequest) (*domain.UpdateUserResponse, error) {
-	if m.UpdateUserFunc != nil {
-		return m.UpdateUserFunc(id, request)
-	}
-	return nil, errors.New("UpdateUser is not implemented in the mock")
+func (m *MockUserRepository) UpdateUser(id int32, request *domain.UpdateUserRequest) (*domain.UpdateUserResponse, error) {
+	args := m.Called(id, request)
+	return args.Get(0).(*domain.UpdateUserResponse), args.Error(1)
 }
 
-func (m *UserRepositoryMock) DeleteUser(id int32) error {
-	if m.DeleteUserFunc != nil {
-		return m.DeleteUserFunc(id)
-	}
-	return errors.New("DeleteUser is not implemented in the mock")
+func (m *MockUserRepository) DeleteUser(id int32) error {
+	args := m.Called(id)
+	return args.Error(0)
 }
 
-func (m *UserRepositoryMock) BlockUser(id int32) error {
-	if m.BlockUserFunc != nil {
-		return m.BlockUserFunc(id)
-	}
-	return nil
+func (m *MockUserRepository) BlockUser(id int32) error {
+	args := m.Called(id)
+	return args.Error(0)
 }
 
-func (m *UserRepositoryMock) UnblockUser(id int32) error {
-	if m.UnblockUserFunc != nil {
-		return m.UnblockUserFunc(id)
-	}
-	return nil
+func (m *MockUserRepository) UnblockUser(id int32) error {
+	args := m.Called(id)
+	return args.Error(0)
 }
 
-func (m *UserRepositoryMock) SearchUsers(query string, page, pageSize int) (*domain.UsersList, error) {
-	if m.SearchUsersFunc != nil {
-		return m.SearchUsersFunc(query, page, pageSize)
-	}
-	return nil, errors.New("SearchUsers is not implemented in the mock")
+func (m *MockUserRepository) SearchUsers(query string, page, pageSize int) (*domain.UsersList, error) {
+	args := m.Called(query, page, pageSize)
+	return args.Get(0).(*domain.UsersList), args.Error(1)
 }
