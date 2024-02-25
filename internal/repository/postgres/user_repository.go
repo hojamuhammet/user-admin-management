@@ -5,7 +5,6 @@ import (
 	"admin-panel/pkg/lib/utils"
 	"context"
 	"database/sql"
-	"fmt"
 	"log/slog"
 	"strings"
 
@@ -129,7 +128,7 @@ func (r *PostgresUserRepository) GetUserByID(id int32) (*domain.GetUserResponse,
 
 func (r *PostgresUserRepository) CreateUser(request *domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
 	if !utils.IsValidPhoneNumber(request.PhoneNumber) {
-		return nil, fmt.Errorf("invalid phone number format")
+		return nil, domain.ErrInvalidPhoneNumber
 	}
 
 	stmt, err := r.DB.Prepare(`
