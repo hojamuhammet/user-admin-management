@@ -15,6 +15,11 @@ func (m *MockUserService) GetAllUsers(page, pageSize int) (*domain.UsersList, er
 	return args.Get(0).(*domain.UsersList), args.Error(1)
 }
 
+func (m *MockUserService) GetTotalUsersCount() (int, error) {
+	args := m.Called()
+	return args.Int(0), args.Error(1)
+}
+
 func (m *MockUserService) GetUserByID(id int32) (*domain.GetUserResponse, error) {
 	args := m.Called(id)
 	return args.Get(0).(*domain.GetUserResponse), args.Error(1)

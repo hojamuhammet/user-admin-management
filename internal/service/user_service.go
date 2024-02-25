@@ -7,15 +7,19 @@ import (
 )
 
 type UserService struct {
-	UserRepository repository.UserRepositoryInterface
+	UserRepository repository.UserRepository
 }
 
-func NewUserService(userRepository repository.UserRepositoryInterface) *UserService {
+func NewUserService(userRepository repository.UserRepository) *UserService {
 	return &UserService{UserRepository: userRepository}
 }
 
 func (s *UserService) GetAllUsers(page, pageSize int) (*domain.UsersList, error) {
 	return s.UserRepository.GetAllUsers(page, pageSize)
+}
+
+func (s *UserService) GetTotalUsersCount() (int, error) {
+	return s.UserRepository.GetTotalUsersCount()
 }
 
 func (s *UserService) GetUserByID(id int32) (*domain.GetUserResponse, error) {
@@ -46,4 +50,4 @@ func (s *UserService) SearchUsers(query string, page, pageSize int) (*domain.Use
 	return s.UserRepository.SearchUsers(query, page, pageSize)
 }
 
-var _ service.UserServiceInterface = &UserService{}
+var _ service.UserService = &UserService{}
