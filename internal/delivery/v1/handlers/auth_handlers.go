@@ -30,7 +30,7 @@ type LoginResponse struct {
 }
 
 type StatusMessage struct {
-	Status  int    `json:"code"`
+	Status  int    `json:"status"`
 	Message string `json:"message"`
 }
 
