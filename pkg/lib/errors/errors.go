@@ -2,6 +2,13 @@ package errors
 
 import "errors"
 
+// general
+
+var (
+	ErrInternalServerError = errors.New("internal server error")
+	ErrDatabaseError       = errors.New("database error")
+)
+
 // auth
 const (
 	InvalidRequestFormat    = "Invalid request format"
@@ -23,9 +30,6 @@ const (
 	PhoneNumberAlreadyInUse  = "Phone number already in use"
 	EmailAlreadyInUse        = "Email already in use"
 )
-
-var ErrInternalServerError = errors.New("internal server error")
-var ErrDatabaseError = errors.New("database error")
 
 var (
 	ErrInvalidCredentials   = errors.New("invalid credentials")
