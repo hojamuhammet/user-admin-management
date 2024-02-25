@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"errors"
 	"time"
 )
 
@@ -51,11 +50,3 @@ type CommonAdminResponse struct {
 }
 
 type UpdateAdminResponse CommonAdminResponse
-
-var (
-	ErrInvalidCredentials   = errors.New("invalid credentials")
-	ErrAdminNotFound        = errors.New("admin not found")
-	ErrInvalidRefreshToken  = errors.New("invalid refresh token")
-	ErrAdminAlreadyExists   = errors.New("admin already exists")
-	ErrAdminCannotBeDeleted = errors.New("super admin cannot be deleted")
-)

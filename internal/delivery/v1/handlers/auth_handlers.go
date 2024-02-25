@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"admin-panel/internal/domain"
 	"admin-panel/internal/service"
 	"admin-panel/pkg/lib/errors"
 	"admin-panel/pkg/lib/status"
@@ -55,7 +54,7 @@ func (h *AdminAuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) 
 	accessToken, refreshToken, err := h.AdminAuthService.LoginAdmin(loginRequest.Username, loginRequest.Password)
 	if err != nil {
 		switch err {
-		case domain.ErrAdminNotFound:
+		case errors.ErrAdminNotFound:
 			utils.RespondWithErrorJSON(w, status.NotFound, errors.AdminNotFound)
 		default:
 			slog.Error("Error during login:", utils.Err(err))

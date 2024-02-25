@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"errors"
 	"time"
 )
 
@@ -62,11 +61,3 @@ type GetUserResponse CommonUserResponse
 type CreateUserResponse CommonUserResponse
 
 type UpdateUserResponse CommonUserResponse
-
-var (
-	ErrUserNotFound       = errors.New("user not found")
-	ErrUserAlreadyExists  = errors.New("user already exists")
-	ErrPhoneNumberInUse   = errors.New("phone number already in use")
-	ErrEmailInUse         = errors.New("email already in use")
-	ErrInvalidPhoneNumber = errors.New("invalid phone number format")
-)

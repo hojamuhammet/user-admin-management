@@ -147,7 +147,7 @@ func (h *AdminHandler) CreateAdminHandler(w http.ResponseWriter, r *http.Request
 	createdAdmin, err := h.AdminService.CreateAdmin(&admin)
 	if err != nil {
 		switch err {
-		case domain.ErrAdminAlreadyExists:
+		case errors.ErrAdminAlreadyExists:
 			utils.RespondWithErrorJSON(w, status.Conflict, "Admin with the same username already exists")
 		default:
 			utils.RespondWithErrorJSON(w, status.InternalServerError, fmt.Sprintf("Error creating admin: %v", err))
@@ -191,7 +191,7 @@ func (h *AdminHandler) UpdateAdminHandler(w http.ResponseWriter, r *http.Request
 
 	admin, err := h.AdminService.UpdateAdmin(int32(id), &updateAdminRequest)
 	if err != nil {
-		if err == domain.ErrAdminNotFound {
+		if err == errors.ErrAdminNotFound {
 			utils.RespondWithErrorJSON(w, status.NotFound, errors.AdminNotFound)
 			return
 		}
@@ -227,7 +227,7 @@ func (h *AdminHandler) DeleteAdminHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := h.AdminService.DeleteAdmin(int32(id)); err != nil {
-		if err == domain.ErrAdminNotFound {
+		if err == errors.ErrAdminNotFound {
 			utils.RespondWithErrorJSON(w, status.NotFound, errors.AdminNotFound)
 			return
 		}

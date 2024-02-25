@@ -2,6 +2,7 @@ package repository
 
 import (
 	"admin-panel/internal/domain"
+	errors "admin-panel/pkg/lib/errors"
 	"admin-panel/pkg/lib/utils"
 	"context"
 	"database/sql"
@@ -95,7 +96,7 @@ func (r *PostgresAdminRepository) GetAdminByID(id int32) (*domain.CommonAdminRes
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, domain.ErrAdminNotFound
+			return nil, errors.ErrAdminNotFound
 		}
 
 		slog.Error("error scanning admin row: %v", utils.Err(err))
@@ -117,7 +118,7 @@ func (r *PostgresAdminRepository) CreateAdmin(request *domain.CreateAdminRequest
 		slog.Error("error checking admin existence: %v", utils.Err(err))
 		return nil, err
 	} else {
-		return nil, domain.ErrAdminAlreadyExists
+		return nil, errors.ErrAdminAlreadyExists
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
@@ -186,7 +187,7 @@ func (r *PostgresAdminRepository) UpdateAdmin(id int32, request *domain.UpdateAd
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, domain.ErrAdminNotFound
+			return nil, errors.ErrAdminNotFound
 		}
 
 		slog.Error("error executing  query: %v", utils.Err(err))
@@ -205,7 +206,7 @@ func (r *PostgresAdminRepository) DeleteAdmin(id int32) error {
 	}
 
 	if !exists {
-		return domain.ErrAdminNotFound
+		return errors.ErrAdminNotFound
 	}
 
 	stmt, err := r.DB.Prepare(`DELETE FROM admins WHERE id = $1`)

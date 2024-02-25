@@ -2,6 +2,7 @@ package repository
 
 import (
 	"admin-panel/internal/domain"
+	errors "admin-panel/pkg/lib/errors"
 	"admin-panel/pkg/lib/utils"
 	"database/sql"
 	"fmt"
@@ -114,7 +115,7 @@ func (r *PostgresAdminAuthRepository) GetAdminByUsername(username string) (*doma
 	err := row.Scan(&admin.ID, &admin.Username, &admin.Password, &admin.Role)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, domain.ErrAdminNotFound
+			return nil, errors.ErrAdminNotFound
 		}
 
 		slog.Error("Error getting admin by username: %v", err)
@@ -140,7 +141,7 @@ func (r *PostgresAdminAuthRepository) GetAdminByID(adminID int) (*domain.Admin, 
 	if err != nil {
 		if err == sql.ErrNoRows {
 			slog.Error("Admin not found")
-			return nil, domain.ErrAdminNotFound
+			return nil, errors.ErrAdminNotFound
 		}
 
 		slog.Error("Error getting admin by ID: %v", err)

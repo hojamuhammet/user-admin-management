@@ -1,9 +1,9 @@
 package service
 
 import (
-	"admin-panel/internal/domain"
 	repository "admin-panel/internal/repository/interfaces"
 	service "admin-panel/internal/service/interfaces"
+	"admin-panel/pkg/lib/errors"
 	"admin-panel/pkg/lib/utils"
 	"log/slog"
 
@@ -28,7 +28,7 @@ func (s *AdminAuthService) LoginAdmin(username, password string) (string, string
 	err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(password))
 	if err != nil {
 		slog.Error("Error comparing passwords:", utils.Err(err))
-		return "", "", domain.ErrInvalidCredentials
+		return "", "", errors.ErrInvalidCredentials
 	}
 
 	accessToken, refreshToken, err := s.AdminAuthRepository.GenerateTokenPair(admin)
@@ -50,7 +50,7 @@ func (s *AdminAuthService) RefreshTokens(refreshToken string) (string, string, e
 	adminIDFloat, ok := claims["adminID"].(float64)
 	if !ok {
 		slog.Error("AdminID not found or not a number in refresh token claims")
-		return "", "", domain.ErrInvalidRefreshToken
+		return "", "", errors.ErrInvalidRefreshToken
 	}
 
 	// Convert adminID to int

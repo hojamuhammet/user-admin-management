@@ -157,10 +157,10 @@ func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 	user, err := h.UserService.CreateUser(&createUserRequest)
 	if err != nil {
 		slog.Error("Error creating user: ", utils.Err(err))
-		if err.Error() == domain.ErrPhoneNumberInUse.Error() {
+		if err.Error() == errors.ErrPhoneNumberInUse.Error() {
 			utils.RespondWithErrorJSON(w, status.Conflict, errors.PhoneNumberAlreadyInUse)
 			return
-		} else if err.Error() == domain.ErrEmailInUse.Error() {
+		} else if err.Error() == errors.ErrEmailInUse.Error() {
 			utils.RespondWithErrorJSON(w, status.Conflict, errors.EmailAlreadyInUse)
 			return
 		}
@@ -204,10 +204,10 @@ func (h *UserHandler) UpdateUserHandler(w http.ResponseWriter, r *http.Request) 
 
 	user, err := h.UserService.UpdateUser(int32(id), &updateUserRequest)
 	if err != nil {
-		if err == domain.ErrUserNotFound {
+		if err == errors.ErrUserNotFound {
 			utils.RespondWithErrorJSON(w, status.NotFound, errors.UserNotFound)
 			return
-		} else if err == domain.ErrEmailInUse {
+		} else if err == errors.ErrEmailInUse {
 			utils.RespondWithErrorJSON(w, status.Conflict, errors.EmailAlreadyInUse)
 			return
 		}
@@ -242,7 +242,7 @@ func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := h.UserService.DeleteUser(int32(id)); err != nil {
-		if err == domain.ErrUserNotFound {
+		if err == errors.ErrUserNotFound {
 			utils.RespondWithErrorJSON(w, status.NotFound, errors.UserNotFound)
 			return
 		}
@@ -279,7 +279,7 @@ func (h *UserHandler) BlockUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.UserService.BlockUser(int32(id)); err != nil {
-		if err == domain.ErrUserNotFound {
+		if err == errors.ErrUserNotFound {
 			utils.RespondWithErrorJSON(w, status.NotFound, errors.UserNotFound)
 			return
 		}
@@ -316,7 +316,7 @@ func (h *UserHandler) UnblockUserHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := h.UserService.UnblockUser(int32(id)); err != nil {
-		if err == domain.ErrUserNotFound {
+		if err == errors.ErrUserNotFound {
 			utils.RespondWithErrorJSON(w, status.NotFound, errors.UserNotFound)
 			return
 		}

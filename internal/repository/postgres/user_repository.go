@@ -2,6 +2,7 @@ package repository
 
 import (
 	"admin-panel/internal/domain"
+	errors "admin-panel/pkg/lib/errors"
 	"admin-panel/pkg/lib/utils"
 	"context"
 	"database/sql"
@@ -117,7 +118,7 @@ func (r *PostgresUserRepository) GetUserByID(id int32) (*domain.GetUserResponse,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, domain.ErrUserNotFound
+			return nil, errors.ErrUserNotFound
 		}
 		slog.Error("error scanning user row: %v", utils.Err(err))
 		return nil, err
@@ -128,7 +129,7 @@ func (r *PostgresUserRepository) GetUserByID(id int32) (*domain.GetUserResponse,
 
 func (r *PostgresUserRepository) CreateUser(request *domain.CreateUserRequest) (*domain.CreateUserResponse, error) {
 	if !utils.IsValidPhoneNumber(request.PhoneNumber) {
-		return nil, domain.ErrInvalidPhoneNumber
+		return nil, errors.ErrInvalidPhoneNumber
 	}
 
 	stmt, err := r.DB.Prepare(`
@@ -170,9 +171,9 @@ func (r *PostgresUserRepository) CreateUser(request *domain.CreateUserRequest) (
 		if pqErr, ok := err.(*pq.Error); ok {
 			if pqErr.Code == "23505" {
 				if strings.Contains(pqErr.Error(), "phone_number") {
-					return nil, domain.ErrPhoneNumberInUse
+					return nil, errors.ErrPhoneNumberInUse
 				} else if strings.Contains(pqErr.Error(), "email") {
-					return nil, domain.ErrEmailInUse
+					return nil, errors.ErrEmailInUse
 				}
 			}
 		}
@@ -229,12 +230,12 @@ func (r PostgresUserRepository) UpdateUser(id int32, request *domain.UpdateUserR
 		if pqErr, ok := err.(*pq.Error); ok {
 			if pqErr.Code == "23505" {
 				if strings.Contains(pqErr.Error(), "email") {
-					return nil, domain.ErrEmailInUse
+					return nil, errors.ErrEmailInUse
 				}
 			}
 		}
 		if err == sql.ErrNoRows {
-			return nil, domain.ErrUserNotFound
+			return nil, errors.ErrUserNotFound
 		}
 		slog.Error("error executing query: %v", utils.Err(err))
 		return nil, err
@@ -252,7 +253,7 @@ func (r PostgresUserRepository) DeleteUser(id int32) error {
 	}
 
 	if !exists {
-		return domain.ErrUserNotFound
+		return errors.ErrUserNotFound
 	}
 
 	stmt, err := r.DB.Prepare(`DELETE FROM users WHERE id = $1`)
@@ -280,7 +281,7 @@ func (r *PostgresUserRepository) BlockUser(id int32) error {
 	}
 
 	if !exists {
-		return domain.ErrUserNotFound
+		return errors.ErrUserNotFound
 	}
 
 	stmt, err := r.DB.Prepare("UPDATE users SET blocked = true WHERE id = $1")
@@ -308,7 +309,7 @@ func (r *PostgresUserRepository) UnblockUser(id int32) error {
 	}
 
 	if !exists {
-		return domain.ErrUserNotFound
+		return errors.ErrUserNotFound
 	}
 
 	stmt, err := r.DB.Prepare("UPDATE users SET blocked = false WHERE id = $1")

@@ -4,6 +4,7 @@ import (
 	"admin-panel/internal/domain"
 	mocks "admin-panel/internal/mocks/repository"
 	repository "admin-panel/internal/repository/postgres"
+	errors "admin-panel/pkg/lib/errors"
 	"testing"
 	"time"
 
@@ -142,8 +143,8 @@ func TestGetUserByID(t *testing.T) {
 			name:           "User Not Found",
 			id:             2,
 			mockReturnUser: nil,
-			mockReturnErr:  domain.ErrUserNotFound,
-			expectedErr:    domain.ErrUserNotFound,
+			mockReturnErr:  errors.ErrUserNotFound,
+			expectedErr:    errors.ErrUserNotFound,
 		},
 	}
 
@@ -210,8 +211,8 @@ func TestCreateUser(t *testing.T) {
 				ProfilePhotoURL: "https://example.com/profile.jpg",
 			},
 			mockReturnUser: nil,
-			mockReturnErr:  domain.ErrInvalidPhoneNumber,
-			expectedErr:    domain.ErrInvalidPhoneNumber,
+			mockReturnErr:  errors.ErrInvalidPhoneNumber,
+			expectedErr:    errors.ErrInvalidPhoneNumber,
 		},
 		{
 			name: "Email In Use",
@@ -225,8 +226,8 @@ func TestCreateUser(t *testing.T) {
 				ProfilePhotoURL: "https://example.com/profile.jpg",
 			},
 			mockReturnUser: nil,
-			mockReturnErr:  domain.ErrEmailInUse,
-			expectedErr:    domain.ErrEmailInUse,
+			mockReturnErr:  errors.ErrEmailInUse,
+			expectedErr:    errors.ErrEmailInUse,
 		},
 	}
 
@@ -292,8 +293,8 @@ func TestUpdateUser(t *testing.T) {
 				ProfilePhotoURL: "https://example.com/profile.jpg",
 			},
 			mockReturnUser: nil,
-			mockReturnErr:  domain.ErrUserNotFound,
-			expectedErr:    domain.ErrUserNotFound,
+			mockReturnErr:  errors.ErrUserNotFound,
+			expectedErr:    errors.ErrUserNotFound,
 		},
 		{
 			name: "Email In Use",
@@ -307,8 +308,8 @@ func TestUpdateUser(t *testing.T) {
 				ProfilePhotoURL: "https://example.com/profile.jpg",
 			},
 			mockReturnUser: nil,
-			mockReturnErr:  domain.ErrEmailInUse,
-			expectedErr:    domain.ErrEmailInUse,
+			mockReturnErr:  errors.ErrEmailInUse,
+			expectedErr:    errors.ErrEmailInUse,
 		},
 	}
 
@@ -342,8 +343,8 @@ func TestDeleteUser(t *testing.T) {
 		{
 			name:          "User Not Found",
 			id:            2,
-			mockReturnErr: domain.ErrUserNotFound,
-			expectedErr:   domain.ErrUserNotFound,
+			mockReturnErr: errors.ErrUserNotFound,
+			expectedErr:   errors.ErrUserNotFound,
 		},
 	}
 
@@ -376,8 +377,8 @@ func TestBlockUser(t *testing.T) {
 		{
 			name:          "User Not Found",
 			id:            2,
-			mockReturnErr: domain.ErrUserNotFound,
-			expectedErr:   domain.ErrUserNotFound,
+			mockReturnErr: errors.ErrUserNotFound,
+			expectedErr:   errors.ErrUserNotFound,
 		},
 	}
 
@@ -410,8 +411,8 @@ func TestUnblockUser(t *testing.T) {
 		{
 			name:          "User Not Found",
 			id:            2,
-			mockReturnErr: domain.ErrUserNotFound,
-			expectedErr:   domain.ErrUserNotFound,
+			mockReturnErr: errors.ErrUserNotFound,
+			expectedErr:   errors.ErrUserNotFound,
 		},
 	}
 

@@ -5,9 +5,9 @@ import (
 	"admin-panel/internal/domain"
 	repoMocks "admin-panel/internal/mocks/repository"
 	mocks "admin-panel/internal/mocks/service"
+	"admin-panel/pkg/lib/errors"
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -75,7 +75,7 @@ func TestGetAllUsersHandler(t *testing.T) {
 			page:           1,
 			pageSize:       8,
 			mockReturnUser: nil,
-			mockReturnErr:  errors.New("internal server error"),
+			mockReturnErr:  errors.ErrInternalServerError,
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody:   `{"status":500,"message":"Internal server error"}`,
 		},
@@ -133,14 +133,14 @@ func TestGetUserByIDHandler(t *testing.T) {
 		{
 			name:           "NotFound",
 			mockReturnUser: nil,
-			mockReturnErr:  domain.ErrUserNotFound,
+			mockReturnErr:  errors.ErrUserNotFound,
 			expectedStatus: http.StatusNotFound,
 			expectedBody:   `{"status":404,"message":"User not found"}`,
 		},
 		{
 			name:           "InternalServerError",
 			mockReturnUser: nil,
-			mockReturnErr:  errors.New("internal server error"),
+			mockReturnErr:  errors.ErrInternalServerError,
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody:   `{"status":500,"message":"Error retrieving user"}`,
 		},
@@ -217,7 +217,7 @@ func TestCreateUserHandler(t *testing.T) {
 			},
 			mockUserService: func() *mocks.MockUserService {
 				userService := &mocks.MockUserService{}
-				userService.On("CreateUser", mock.Anything).Return(&domain.CreateUserResponse{}, domain.ErrPhoneNumberInUse)
+				userService.On("CreateUser", mock.Anything).Return(&domain.CreateUserResponse{}, errors.ErrPhoneNumberInUse)
 				return userService
 			},
 			expectedStatus: http.StatusConflict,
@@ -237,7 +237,7 @@ func TestCreateUserHandler(t *testing.T) {
 			},
 			mockUserService: func() *mocks.MockUserService {
 				userService := &mocks.MockUserService{}
-				userService.On("CreateUser", mock.Anything).Return(&domain.CreateUserResponse{}, domain.ErrEmailInUse)
+				userService.On("CreateUser", mock.Anything).Return(&domain.CreateUserResponse{}, errors.ErrEmailInUse)
 				return userService
 			},
 			expectedStatus: http.StatusConflict,
@@ -309,7 +309,7 @@ func TestUpdateUserHandler(t *testing.T) {
 			},
 			mockUserService: func() *mocks.MockUserService {
 				userService := &mocks.MockUserService{}
-				userService.On("UpdateUser", mock.Anything, mock.Anything).Return(&domain.UpdateUserResponse{}, domain.ErrUserNotFound)
+				userService.On("UpdateUser", mock.Anything, mock.Anything).Return(&domain.UpdateUserResponse{}, errors.ErrUserNotFound)
 				return userService
 			},
 			expectedStatus: http.StatusNotFound,
@@ -328,7 +328,7 @@ func TestUpdateUserHandler(t *testing.T) {
 			},
 			mockUserService: func() *mocks.MockUserService {
 				userService := &mocks.MockUserService{}
-				userService.On("UpdateUser", mock.Anything, mock.Anything).Return(&domain.UpdateUserResponse{}, domain.ErrEmailInUse)
+				userService.On("UpdateUser", mock.Anything, mock.Anything).Return(&domain.UpdateUserResponse{}, errors.ErrEmailInUse)
 				return userService
 			},
 			expectedStatus: http.StatusConflict,
@@ -397,7 +397,7 @@ func TestDeleteUserHandler(t *testing.T) {
 			id:   1,
 			mockUserService: func() *mocks.MockUserService {
 				userService := &mocks.MockUserService{}
-				userService.On("DeleteUser", mock.Anything).Return(domain.ErrUserNotFound)
+				userService.On("DeleteUser", mock.Anything).Return(errors.ErrUserNotFound)
 				return userService
 			},
 			expectedStatus: http.StatusNotFound,
@@ -460,7 +460,7 @@ func TestBlockUserHandler(t *testing.T) {
 			id:   1,
 			mockUserService: func() *mocks.MockUserService {
 				userService := &mocks.MockUserService{}
-				userService.On("BlockUser", mock.Anything).Return(domain.ErrUserNotFound)
+				userService.On("BlockUser", mock.Anything).Return(errors.ErrUserNotFound)
 				return userService
 			},
 			expectedStatus: http.StatusNotFound,
@@ -523,7 +523,7 @@ func TestUnblockUserHandler(t *testing.T) {
 			id:   1,
 			mockUserService: func() *mocks.MockUserService {
 				userService := &mocks.MockUserService{}
-				userService.On("UnblockUser", mock.Anything).Return(domain.ErrUserNotFound)
+				userService.On("UnblockUser", mock.Anything).Return(errors.ErrUserNotFound)
 				return userService
 			},
 			expectedStatus: http.StatusNotFound,
@@ -607,7 +607,7 @@ func TestSearchUsersHandler(t *testing.T) {
 			page:           1,
 			pageSize:       8,
 			mockReturnUser: nil,
-			mockReturnErr:  errors.New("internal server error"),
+			mockReturnErr:  errors.ErrInternalServerError,
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody:   `{"status":500,"message":"Internal server error"}`,
 		},
@@ -617,7 +617,7 @@ func TestSearchUsersHandler(t *testing.T) {
 			page:           1,
 			pageSize:       8,
 			mockReturnUser: nil,
-			mockReturnErr:  errors.New("database error"),
+			mockReturnErr:  errors.ErrDatabaseError,
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody:   `{"status":500,"message":"Internal server error"}`,
 		},
