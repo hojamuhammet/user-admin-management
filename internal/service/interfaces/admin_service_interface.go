@@ -2,7 +2,7 @@ package service
 
 import "admin-panel/internal/domain"
 
-type AdminServiceInterface interface {
+type AdminService interface {
 	GetAllAdmins(page, pageSize int) (*domain.AdminsList, error)
 	GetTotalAdminsCount() (int, error)
 	GetAdminByID(id int32) (*domain.CommonAdminResponse, error)

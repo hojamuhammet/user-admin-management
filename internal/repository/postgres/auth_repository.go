@@ -15,13 +15,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type PostgresAdminAuthRepository struct {
+type PostgresAuthRepository struct {
 	DB        *sql.DB
 	JWTConfig config.JWT
 }
 
-func NewPostgresAdminAuthRepository(db *sql.DB, jwtConfig config.JWT) *PostgresAdminAuthRepository {
-	return &PostgresAdminAuthRepository{DB: db, JWTConfig: jwtConfig}
+func NewPostgresAuthRepository(db *sql.DB, jwtConfig config.JWT) *PostgresAuthRepository {
+	return &PostgresAuthRepository{DB: db, JWTConfig: jwtConfig}
 }
 
 const (
@@ -29,7 +29,7 @@ const (
 	refreshTokenExpiration = 7 * 24 * time.Hour
 )
 
-func (r *PostgresAdminAuthRepository) GenerateTokenPair(admin *domain.Admin) (string, string, error) {
+func (r *PostgresAuthRepository) GenerateTokenPair(admin *domain.Admin) (string, string, error) {
 	accessToken, err := r.generateAccessToken(admin)
 	if err != nil {
 		return "", "", err
@@ -43,7 +43,7 @@ func (r *PostgresAdminAuthRepository) GenerateTokenPair(admin *domain.Admin) (st
 	return accessToken, refreshToken, nil
 }
 
-func (r *PostgresAdminAuthRepository) ValidateRefreshToken(refreshToken string) (map[string]interface{}, error) {
+func (r *PostgresAuthRepository) ValidateRefreshToken(refreshToken string) (map[string]interface{}, error) {
 	token, _, err := new(jwt.Parser).ParseUnverified(refreshToken, jwt.MapClaims{})
 	if err != nil {
 		slog.Error("Error parsing refresh token: %v", err)
@@ -82,7 +82,7 @@ func (r *PostgresAdminAuthRepository) ValidateRefreshToken(refreshToken string) 
 	return claims, nil
 }
 
-func (r *PostgresAdminAuthRepository) DeleteRefreshToken(refreshToken string) error {
+func (r *PostgresAuthRepository) DeleteRefreshToken(refreshToken string) error {
 	query := `
         UPDATE admins
         SET refresh_token = NULL,
@@ -100,7 +100,7 @@ func (r *PostgresAdminAuthRepository) DeleteRefreshToken(refreshToken string) er
 	return nil
 }
 
-func (r *PostgresAdminAuthRepository) GetAdminByUsername(username string) (*domain.Admin, error) {
+func (r *PostgresAuthRepository) GetAdminByUsername(username string) (*domain.Admin, error) {
 	query := `
 		SELECT id, username, password, role
 		FROM admins
@@ -125,7 +125,7 @@ func (r *PostgresAdminAuthRepository) GetAdminByUsername(username string) (*doma
 	return &admin, nil
 }
 
-func (r *PostgresAdminAuthRepository) GetAdminByID(adminID int) (*domain.Admin, error) {
+func (r *PostgresAuthRepository) GetAdminByID(adminID int) (*domain.Admin, error) {
 	query := `
 		SELECT id, username, password, role
 		FROM admins
@@ -151,7 +151,7 @@ func (r *PostgresAdminAuthRepository) GetAdminByID(adminID int) (*domain.Admin, 
 	return &admin, nil
 }
 
-func (r *PostgresAdminAuthRepository) generateAccessToken(admin *domain.Admin) (string, error) {
+func (r *PostgresAuthRepository) generateAccessToken(admin *domain.Admin) (string, error) {
 	claims := jwt.MapClaims{
 		"id":   admin.ID,
 		"role": admin.Role,
@@ -169,7 +169,7 @@ func (r *PostgresAdminAuthRepository) generateAccessToken(admin *domain.Admin) (
 	return tokenString, nil
 }
 
-func (r *PostgresAdminAuthRepository) generateRefreshToken(admin *domain.Admin) (string, error) {
+func (r *PostgresAuthRepository) generateRefreshToken(admin *domain.Admin) (string, error) {
 	refreshTokenID := uuid.New().String()
 
 	refreshClaims := jwt.MapClaims{
@@ -202,7 +202,7 @@ func (r *PostgresAdminAuthRepository) generateRefreshToken(admin *domain.Admin) 
 	return refreshTokenString, nil
 }
 
-func (r *PostgresAdminAuthRepository) validateRefreshToken(refreshToken string) (map[string]interface{}, error) {
+func (r *PostgresAuthRepository) validateRefreshToken(refreshToken string) (map[string]interface{}, error) {
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

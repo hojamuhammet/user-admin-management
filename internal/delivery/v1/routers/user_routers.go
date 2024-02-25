@@ -2,14 +2,14 @@ package routers
 
 import (
 	"admin-panel/internal/delivery/v1/handlers"
-	repository "admin-panel/internal/repository/postgres"
-	"admin-panel/internal/service"
+	repository "admin-panel/internal/repository/interfaces"
+	service "admin-panel/internal/service/interfaces"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func SetupUserRoutes(userRouter *chi.Mux, userService *service.UserService, userRepository *repository.PostgresUserRepository) {
-	userHandler := handlers.NewUserHandler(userService, userRepository, userRouter)
+func SetupUserRoutes(userRepository repository.UserRepository, userService service.UserService, userRouter *chi.Mux) {
+	userHandler := handlers.NewUserHandler(userRepository, userService, userRouter)
 
 	userRouter.Get("/", userHandler.GetAllUsersHandler)
 	userRouter.Get("/{id}", userHandler.GetUserByIDHandler)

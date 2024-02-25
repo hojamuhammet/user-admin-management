@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	"admin-panel/internal/service"
+	repository "admin-panel/internal/repository/interfaces"
+	service "admin-panel/internal/service/interfaces"
 	"admin-panel/pkg/lib/errors"
 	"admin-panel/pkg/lib/status"
 	"admin-panel/pkg/lib/utils"
@@ -13,9 +14,18 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type AdminAuthHandler struct {
-	AdminAuthService service.AdminAuthService
-	Router           *chi.Mux
+type AuthHandler struct {
+	AuthRepository repository.AuthRepository
+	AuthService    service.AuthService
+	Router         *chi.Mux
+}
+
+func NewAuthHandler(repository repository.AuthRepository, service service.AuthService, router *chi.Mux) *AuthHandler {
+	return &AuthHandler{
+		AuthRepository: repository,
+		AuthService:    service,
+		Router:         router,
+	}
 }
 
 type LoginRequest struct {
@@ -43,7 +53,7 @@ type StatusMessage struct {
 // @Failure 400 {object} StatusMessage
 // @Failure 401 {object} StatusMessage
 // @Router /auth/login [post]
-func (h *AdminAuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var loginRequest LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&loginRequest); err != nil {
 		slog.Error("Error decoding login request:", utils.Err(err))
@@ -51,7 +61,7 @@ func (h *AdminAuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	accessToken, refreshToken, err := h.AdminAuthService.LoginAdmin(loginRequest.Username, loginRequest.Password)
+	accessToken, refreshToken, err := h.AuthService.LoginAdmin(loginRequest.Username, loginRequest.Password)
 	if err != nil {
 		switch err {
 		case errors.ErrAdminNotFound:
@@ -81,7 +91,7 @@ func (h *AdminAuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) 
 // @Success 200 {object} map[string]string
 // @Failure 401 {object} StatusMessage
 // @Router /auth/refresh [post]
-func (h *AdminAuthHandler) RefreshTokensHandler(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) RefreshTokensHandler(w http.ResponseWriter, r *http.Request) {
 	refreshToken := extractTokenFromHeader(r)
 	if refreshToken == "" {
 		slog.Error("Refresh token is not provided")
@@ -89,7 +99,7 @@ func (h *AdminAuthHandler) RefreshTokensHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	newAccessToken, newRefreshToken, err := h.AdminAuthService.RefreshTokens(refreshToken)
+	newAccessToken, newRefreshToken, err := h.AuthService.RefreshTokens(refreshToken)
 	if err != nil {
 		slog.Error("Error refreshing tokens:", utils.Err(err))
 		utils.RespondWithErrorJSON(w, status.Unauthorized, errors.InvalidRefreshToken)
@@ -114,7 +124,7 @@ func (h *AdminAuthHandler) RefreshTokensHandler(w http.ResponseWriter, r *http.R
 // @Failure 401 {object} StatusMessage "Refresh token not provided"
 // @Failure 500 {object} StatusMessage "Internal server error"
 // @Router /auth/logout [post]
-func (h *AdminAuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	var requestData map[string]string
 	if err := json.NewDecoder(r.Body).Decode(&requestData); err != nil {
 		utils.RespondWithErrorJSON(w, status.BadRequest, errors.InvalidRequestFormat)
@@ -127,7 +137,7 @@ func (h *AdminAuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err := h.AdminAuthService.LogoutAdmin(refreshToken)
+	err := h.AuthService.LogoutAdmin(refreshToken)
 	if err != nil {
 		utils.RespondWithErrorJSON(w, status.InternalServerError, errors.InternalServerError)
 		return

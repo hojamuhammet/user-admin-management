@@ -42,4 +42,4 @@ func (s *AdminService) SearchAdmins(query string, page, pageSize int) (*domain.A
 	return s.AdminRepository.SearchAdmins(query, page, pageSize)
 }
 
-var _ service.AdminServiceInterface = &AdminService{}
+var _ service.AdminService = &AdminService{}

@@ -58,9 +58,9 @@ func main() {
 		r.Mount("/", authRouter)
 	})
 
-	adminAuthRepository := repository.NewPostgresAdminAuthRepository(db.GetDB(), cfg.JWT)
-	adminAuthService := service.NewAdminAuthService(adminAuthRepository)
-	routers.SetupAuthRoutes(authRouter, adminAuthService)
+	authRepository := repository.NewPostgresAuthRepository(db.GetDB(), cfg.JWT)
+	authService := service.NewAuthService(authRepository)
+	routers.SetupAuthRoutes(authRepository, authService, authRouter)
 
 	// Admin routes
 	adminRouter := chi.NewRouter()
@@ -71,7 +71,7 @@ func main() {
 
 	adminRepository := repository.NewPostgresAdminRepository(db.GetDB())
 	adminService := service.NewAdminService(adminRepository)
-	routers.SetupAdminRoutes(adminRouter, adminService)
+	routers.SetupAdminRoutes(adminRepository, adminService, adminRouter)
 
 	// User routes
 	userRouter := chi.NewRouter()
@@ -82,7 +82,7 @@ func main() {
 
 	userRepository := repository.NewPostgresUserRepository(db.GetDB())
 	userService := service.NewUserService(userRepository)
-	routers.SetupUserRoutes(userRouter, userService, userRepository)
+	routers.SetupUserRoutes(userRepository, userService, userRouter)
 
 	mainRouter.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),

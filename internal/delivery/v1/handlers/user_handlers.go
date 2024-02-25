@@ -17,15 +17,15 @@ import (
 )
 
 type UserHandler struct {
-	UserService    service.UserService
 	UserRepository repository.UserRepository
+	UserService    service.UserService
 	Router         *chi.Mux
 }
 
-func NewUserHandler(service service.UserService, repository repository.UserRepository, router *chi.Mux) *UserHandler {
+func NewUserHandler(repository repository.UserRepository, service service.UserService, router *chi.Mux) *UserHandler {
 	return &UserHandler{
-		UserService:    service,
 		UserRepository: repository,
+		UserService:    service,
 		Router:         router,
 	}
 }

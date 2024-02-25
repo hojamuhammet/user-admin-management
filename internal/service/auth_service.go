@@ -10,16 +10,16 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type AdminAuthService struct {
-	AdminAuthRepository repository.AdminAuthRepository
+type AuthService struct {
+	AuthRepository repository.AuthRepository
 }
 
-func NewAdminAuthService(adminAuthRepository repository.AdminAuthRepository) *AdminAuthService {
-	return &AdminAuthService{AdminAuthRepository: adminAuthRepository}
+func NewAuthService(authRepository repository.AuthRepository) *AuthService {
+	return &AuthService{AuthRepository: authRepository}
 }
 
-func (s *AdminAuthService) LoginAdmin(username, password string) (string, string, error) {
-	admin, err := s.AdminAuthRepository.GetAdminByUsername(username)
+func (s *AuthService) LoginAdmin(username, password string) (string, string, error) {
+	admin, err := s.AuthRepository.GetAdminByUsername(username)
 	if err != nil {
 		slog.Error("Error getting admin by username:", utils.Err(err))
 		return "", "", err
@@ -31,7 +31,7 @@ func (s *AdminAuthService) LoginAdmin(username, password string) (string, string
 		return "", "", errors.ErrInvalidCredentials
 	}
 
-	accessToken, refreshToken, err := s.AdminAuthRepository.GenerateTokenPair(admin)
+	accessToken, refreshToken, err := s.AuthRepository.GenerateTokenPair(admin)
 	if err != nil {
 		slog.Error("Error generating token pair:", utils.Err(err))
 		return "", "", err
@@ -40,8 +40,8 @@ func (s *AdminAuthService) LoginAdmin(username, password string) (string, string
 	return accessToken, refreshToken, nil
 }
 
-func (s *AdminAuthService) RefreshTokens(refreshToken string) (string, string, error) {
-	claims, err := s.AdminAuthRepository.ValidateRefreshToken(refreshToken)
+func (s *AuthService) RefreshTokens(refreshToken string) (string, string, error) {
+	claims, err := s.AuthRepository.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		slog.Error("Error validating refresh token:", utils.Err(err))
 		return "", "", err
@@ -53,16 +53,15 @@ func (s *AdminAuthService) RefreshTokens(refreshToken string) (string, string, e
 		return "", "", errors.ErrInvalidRefreshToken
 	}
 
-	// Convert adminID to int
 	adminID := int(adminIDFloat)
 
-	admin, err := s.AdminAuthRepository.GetAdminByID(adminID)
+	admin, err := s.AuthRepository.GetAdminByID(adminID)
 	if err != nil {
 		slog.Error("Error getting admin by ID:", utils.Err(err))
 		return "", "", err
 	}
 
-	newAccessToken, newRefreshToken, err := s.AdminAuthRepository.GenerateTokenPair(admin)
+	newAccessToken, newRefreshToken, err := s.AuthRepository.GenerateTokenPair(admin)
 	if err != nil {
 		slog.Error("Error generating token pair:", utils.Err(err))
 		return "", "", err
@@ -71,8 +70,8 @@ func (s *AdminAuthService) RefreshTokens(refreshToken string) (string, string, e
 	return newAccessToken, newRefreshToken, nil
 }
 
-func (s *AdminAuthService) LogoutAdmin(refreshToken string) error {
-	err := s.AdminAuthRepository.DeleteRefreshToken(refreshToken)
+func (s *AuthService) LogoutAdmin(refreshToken string) error {
+	err := s.AuthRepository.DeleteRefreshToken(refreshToken)
 	if err != nil {
 		slog.Error("Error deleting refresh token during logout:", utils.Err(err))
 		return err
@@ -81,4 +80,4 @@ func (s *AdminAuthService) LogoutAdmin(refreshToken string) error {
 	return nil
 }
 
-var _ service.AdminAuthServiceInterface = &AdminAuthService{}
+var _ service.AuthService = &AuthService{}

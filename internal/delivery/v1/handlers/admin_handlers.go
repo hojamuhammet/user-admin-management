@@ -2,7 +2,8 @@ package handlers
 
 import (
 	"admin-panel/internal/domain"
-	"admin-panel/internal/service"
+	repository "admin-panel/internal/repository/interfaces"
+	service "admin-panel/internal/service/interfaces"
 	"admin-panel/pkg/lib/errors"
 	"admin-panel/pkg/lib/status"
 	"admin-panel/pkg/lib/utils"
@@ -16,8 +17,17 @@ import (
 )
 
 type AdminHandler struct {
-	AdminService *service.AdminService
-	Router       chi.Router
+	AdminRepository repository.AdminRepository
+	AdminService    service.AdminService
+	Router          *chi.Mux
+}
+
+func NewAdminHandler(repository repository.AdminRepository, service service.AdminService, router *chi.Mux) *AdminHandler {
+	return &AdminHandler{
+		AdminRepository: repository,
+		AdminService:    service,
+		Router:          router,
+	}
 }
 
 // @Summary Get all admins
