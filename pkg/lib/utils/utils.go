@@ -42,8 +42,8 @@ func RespondWithJSON(w http.ResponseWriter, status int, data interface{}) {
 	json.NewEncoder(w).Encode(data)
 }
 
-func ScanUserRow(rows *sql.Rows) (domain.CommonUserResponse, error) {
-	var user domain.CommonUserResponse
+func ScanUserRow(rows *sql.Rows) (domain.GetUserResponse, error) {
+	var user domain.GetUserResponse
 
 	if err := rows.Scan(
 		&user.ID,
@@ -59,7 +59,7 @@ func ScanUserRow(rows *sql.Rows) (domain.CommonUserResponse, error) {
 		&user.ProfilePhotoURL,
 	); err != nil {
 		slog.Error("Error scanning user row: %v", Err(err))
-		return domain.CommonUserResponse{}, err
+		return domain.GetUserResponse{}, err
 	}
 
 	return user, nil
