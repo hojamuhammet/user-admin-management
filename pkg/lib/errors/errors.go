@@ -37,6 +37,7 @@ var (
 	ErrInvalidRefreshToken  = errors.New("invalid refresh token")
 	ErrAdminAlreadyExists   = errors.New("admin already exists")
 	ErrAdminCannotBeDeleted = errors.New("super admin cannot be deleted")
+	ErrFillRequiredFields   = errors.New("username, password, and role are required fields")
 )
 
 var (

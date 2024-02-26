@@ -6,7 +6,6 @@ import (
 	"admin-panel/pkg/lib/utils"
 	"context"
 	"database/sql"
-	"fmt"
 	"log/slog"
 
 	"golang.org/x/crypto/bcrypt"
@@ -108,7 +107,7 @@ func (r *PostgresAdminRepository) GetAdminByID(id int32) (*domain.GetAdminRespon
 
 func (r *PostgresAdminRepository) CreateAdmin(request *domain.CreateAdminRequest) (*domain.CreateAdminResponse, error) {
 	if request.Username == "" || request.Password == "" || request.Role == "" {
-		return nil, fmt.Errorf("username, password, and role are required fields")
+		return nil, errors.ErrFillRequiredFields
 	}
 
 	var existingUsername string
@@ -159,6 +158,10 @@ func (r *PostgresAdminRepository) CreateAdmin(request *domain.CreateAdminRequest
 }
 
 func (r *PostgresAdminRepository) UpdateAdmin(id int32, request *domain.UpdateAdminRequest) (*domain.UpdateAdminResponse, error) {
+	if request.Username == "" || request.Password == "" || request.Role == "" {
+		return nil, errors.ErrFillRequiredFields
+	}
+
 	updateQuery := `UPDATE admins SET
                     username = $1,
                     password = $2,
