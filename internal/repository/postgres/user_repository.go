@@ -46,7 +46,7 @@ func (r *PostgresUserRepository) GetAllUsers(page, pageSize int) (*domain.UsersL
 	var usersList domain.UsersList
 
 	for rows.Next() {
-		var user domain.CommonUserResponse
+		var user domain.GetUserResponse
 		if err := rows.Scan(
 			&user.ID,
 			&user.FirstName,
@@ -355,7 +355,7 @@ func (r *PostgresUserRepository) SearchUsers(query string, page, pageSize int) (
 	}
 	defer rows.Close()
 
-	userList := domain.UsersList{Users: make([]domain.CommonUserResponse, 0)}
+	userList := domain.UsersList{Users: make([]domain.GetUserResponse, 0)}
 	for rows.Next() {
 		user, err := utils.ScanUserRow(rows)
 		if err != nil {

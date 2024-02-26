@@ -9,7 +9,7 @@ type UserID struct {
 }
 
 type UsersList struct {
-	Users []CommonUserResponse `json:"users"`
+	Users []GetUserResponse `json:"users"`
 }
 
 type UsersListResponse struct {

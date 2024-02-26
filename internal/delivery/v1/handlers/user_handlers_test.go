@@ -40,7 +40,7 @@ func TestGetAllUsersHandler(t *testing.T) {
 			page:     1,
 			pageSize: 8,
 			mockReturnUser: &domain.UsersList{
-				Users: []domain.CommonUserResponse{
+				Users: []domain.GetUserResponse{
 					{
 						ID:               1,
 						FirstName:        "Kemal",
@@ -64,7 +64,7 @@ func TestGetAllUsersHandler(t *testing.T) {
 			page:     2,
 			pageSize: 8,
 			mockReturnUser: &domain.UsersList{
-				Users: []domain.CommonUserResponse{},
+				Users: []domain.GetUserResponse{},
 			},
 			mockReturnErr:  nil,
 			expectedStatus: http.StatusOK,
@@ -582,7 +582,7 @@ func TestSearchUsersHandler(t *testing.T) {
 			page:     1,
 			pageSize: 8,
 			mockReturnUser: &domain.UsersList{
-				Users: []domain.CommonUserResponse{
+				Users: []domain.GetUserResponse{
 					{
 						ID:               1,
 						FirstName:        "Kemal",
