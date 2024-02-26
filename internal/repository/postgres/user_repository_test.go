@@ -92,12 +92,12 @@ func TestGetTotalUsersCount(t *testing.T) {
 		expectedTotalUsers int
 	}{
 		{
-			name:               "DatabaseHasUsers",
+			name:               "Database has users",
 			mockTotalUsers:     10,
 			expectedTotalUsers: 10,
 		},
 		{
-			name:               "DatabaseIsEmpty",
+			name:               "Database is empty",
 			mockTotalUsers:     0,
 			expectedTotalUsers: 0,
 		},
@@ -115,6 +115,7 @@ func TestGetTotalUsersCount(t *testing.T) {
 		})
 	}
 }
+
 func TestGetUserByID(t *testing.T) {
 	testCases := []struct {
 		name           string
