@@ -32,11 +32,13 @@ const (
 func (r *PostgresAuthRepository) GenerateTokenPair(admin *domain.Admin) (string, string, error) {
 	accessToken, err := r.generateAccessToken(admin)
 	if err != nil {
+		slog.Error("Error generating access token")
 		return "", "", err
 	}
 
 	refreshToken, err := r.generateRefreshToken(admin)
 	if err != nil {
+		slog.Error("Error generating refresh token")
 		return "", "", err
 	}
 
