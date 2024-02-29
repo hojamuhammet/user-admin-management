@@ -63,10 +63,9 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	accessToken, refreshToken, err := h.AuthService.LoginAdmin(loginRequest.Username, loginRequest.Password)
 	if err != nil {
-		switch err {
-		case errors.ErrAdminNotFound:
+		if err == errors.ErrAdminNotFound {
 			utils.RespondWithErrorJSON(w, status.NotFound, errors.AdminNotFound)
-		default:
+		} else {
 			slog.Error("Error during login:", utils.Err(err))
 			utils.RespondWithErrorJSON(w, status.Unauthorized, errors.InvalidCredentials)
 		}
