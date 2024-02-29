@@ -25,8 +25,8 @@ func NewPostgresAuthRepository(db *sql.DB, jwtConfig config.JWT) *PostgresAuthRe
 }
 
 const (
-	accessTokenExpiration  = 5 * time.Minute // set to 30 mins
-	refreshTokenExpiration = 5 * time.Minute // 7 * 24 * time.Hour
+	accessTokenExpiration  = 30 * time.Minute
+	refreshTokenExpiration = 7 * 24 * time.Hour
 )
 
 func (r *PostgresAuthRepository) GenerateTokenPair(admin *domain.Admin) (string, string, error) {
