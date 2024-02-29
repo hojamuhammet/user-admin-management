@@ -109,3 +109,51 @@ func TestRefreshTokensHandler(t *testing.T) {
 		})
 	}
 }
+
+func TestLogoutHandler(t *testing.T) {
+	mockAuthService := new(mocks.MockAuthService)
+	handler := AuthHandler{
+		AuthService: mockAuthService,
+	}
+
+	testCases := []struct {
+		name           string
+		refreshToken   string
+		mockReturn     error
+		expectedStatus int
+	}{
+		{
+			name:           "Successful logout",
+			refreshToken:   "valid_refresh_token",
+			mockReturn:     nil,
+			expectedStatus: http.StatusOK,
+		},
+		{
+			name:           "Invalid refresh token",
+			refreshToken:   "invalid_refresh_token",
+			mockReturn:     errors.New("invalid refresh token"),
+			expectedStatus: http.StatusInternalServerError,
+		},
+		{
+			name:           "Expired refresh token",
+			refreshToken:   "Bearer expired_refresh_token",
+			mockReturn:     errors.New("expired refresh token"),
+			expectedStatus: http.StatusInternalServerError,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			reqBody, _ := json.Marshal(map[string]string{"refresh_token": tc.refreshToken})
+			req, _ := http.NewRequest("POST", "/logout", bytes.NewBuffer(reqBody))
+			rr := httptest.NewRecorder()
+
+			mockAuthService.On("LogoutAdmin", tc.refreshToken).Return(tc.mockReturn)
+
+			handler.LogoutHandler(rr, req)
+
+			assert.Equal(t, tc.expectedStatus, rr.Code)
+			mockAuthService.AssertExpectations(t)
+		})
+	}
+}
