@@ -1,6 +1,7 @@
-package handlers
+package handlers_test
 
 import (
+	"admin-panel/internal/delivery/v1/handlers"
 	mocks "admin-panel/internal/mocks/service"
 	"bytes"
 	"encoding/json"
@@ -15,7 +16,7 @@ import (
 
 func TestLoginHandler(t *testing.T) {
 	mockAuthService := new(mocks.MockAuthService)
-	handler := AuthHandler{
+	handler := handlers.AuthHandler{
 		AuthService: mockAuthService,
 	}
 
@@ -44,7 +45,7 @@ func TestLoginHandler(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			loginRequest := LoginRequest{
+			loginRequest := handlers.LoginRequest{
 				Username: tc.username,
 				Password: tc.password,
 			}
@@ -64,7 +65,7 @@ func TestLoginHandler(t *testing.T) {
 
 func TestRefreshTokensHandler(t *testing.T) {
 	mockAuthService := new(mocks.MockAuthService)
-	handler := AuthHandler{
+	handler := handlers.AuthHandler{
 		AuthService: mockAuthService,
 	}
 
@@ -112,7 +113,7 @@ func TestRefreshTokensHandler(t *testing.T) {
 
 func TestLogoutHandler(t *testing.T) {
 	mockAuthService := new(mocks.MockAuthService)
-	handler := AuthHandler{
+	handler := handlers.AuthHandler{
 		AuthService: mockAuthService,
 	}
 
