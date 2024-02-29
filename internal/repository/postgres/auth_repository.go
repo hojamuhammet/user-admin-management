@@ -25,8 +25,8 @@ func NewPostgresAuthRepository(db *sql.DB, jwtConfig config.JWT) *PostgresAuthRe
 }
 
 const (
-	accessTokenExpiration  = 120 * time.Minute // set to 30 mins
-	refreshTokenExpiration = 7 * 24 * time.Hour
+	accessTokenExpiration  = 5 * time.Minute // set to 30 mins
+	refreshTokenExpiration = 5 * time.Minute // 7 * 24 * time.Hour
 )
 
 func (r *PostgresAuthRepository) GenerateTokenPair(admin *domain.Admin) (string, string, error) {
@@ -46,16 +46,15 @@ func (r *PostgresAuthRepository) GenerateTokenPair(admin *domain.Admin) (string,
 }
 
 func (r *PostgresAuthRepository) ValidateRefreshToken(refreshToken string) (map[string]interface{}, error) {
-	token, _, err := new(jwt.Parser).ParseUnverified(refreshToken, jwt.MapClaims{})
+	claims, err := r.validateRefreshToken(refreshToken)
 	if err != nil {
-		slog.Error("Error parsing refresh token: %v", err)
-		return nil, fmt.Errorf("error parsing refresh token: %v", err)
+		return nil, err
 	}
 
-	adminIDClaim, ok := token.Claims.(jwt.MapClaims)["adminID"]
+	adminIDClaim, ok := claims["adminID"]
 	if !ok {
 		slog.Error("AdminID claim not found in refresh token")
-		return nil, fmt.Errorf("adminID claim not found in refresh token")
+		return nil, errors.ErrIdClaimNotFound
 	}
 
 	query := `
@@ -73,12 +72,7 @@ func (r *PostgresAuthRepository) ValidateRefreshToken(refreshToken string) (map[
 
 	if !exists {
 		slog.Error("Refresh token not found in the database")
-		return nil, fmt.Errorf("refresh token not found in the database")
-	}
-
-	claims, err := r.validateRefreshToken(refreshToken)
-	if err != nil {
-		return nil, err
+		return nil, errors.ErrRefreshNotFoundInDB
 	}
 
 	return claims, nil
@@ -212,7 +206,12 @@ func (r *PostgresAuthRepository) validateRefreshToken(refreshToken string) (map[
 		return []byte(r.JWTConfig.RefreshSecretKey), nil
 	})
 
-	if err != nil || !token.Valid {
+	if err != nil {
+		if ve, ok := err.(*jwt.ValidationError); ok {
+			if ve.Errors&jwt.ValidationErrorExpired != 0 {
+				return nil, errors.ErrRefreshTokenExpired
+			}
+		}
 		slog.Error("Refresh token validation error: %v !BADKEY=\"%s\"", err, r.JWTConfig.RefreshSecretKey)
 		return nil, fmt.Errorf("refresh token validation error: %v", err)
 	}
