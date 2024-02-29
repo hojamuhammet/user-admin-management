@@ -29,3 +29,8 @@ func (m *MockAuthRepository) GetAdminByUsername(username string) (*domain.Admin,
 	args := m.Called(username)
 	return args.Get(0).(*domain.Admin), args.Error(1)
 }
+
+func (m *MockAuthRepository) GetAdminByID(adminID int) (*domain.Admin, error) {
+	args := m.Called(adminID)
+	return args.Get(0).(*domain.Admin), args.Error(1)
+}
