@@ -51,7 +51,7 @@ func (r *PostgresAuthRepository) ValidateRefreshToken(refreshToken string) (map[
 		return nil, err
 	}
 
-	adminIDClaim, ok := claims["adminID"]
+	adminIDClaim, ok := claims["adminID"].(string)
 	if !ok {
 		slog.Error("AdminID claim not found in refresh token")
 		return nil, errors.ErrIdClaimNotFound

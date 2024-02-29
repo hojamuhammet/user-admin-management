@@ -18,6 +18,13 @@ const (
 	InvalidRefreshToken     = "Invalid refresh token"
 	InvalidURLParameters    = "Invalid URL parameters"
 	RefreshTokenExpired     = "Refresh token is expired"
+	RefreshNotFoundInDB     = "Refresh token not found in the database"
+)
+
+var (
+	ErrIdClaimNotFound     = errors.New("adminID claim not found in refresh token")
+	ErrRefreshNotFoundInDB = errors.New("refresh token not found in the database")
+	ErrRefreshTokenExpired = errors.New("refresh token is expired")
 )
 
 // user & admin
@@ -39,9 +46,6 @@ var (
 	ErrAdminAlreadyExists   = errors.New("admin already exists")
 	ErrAdminCannotBeDeleted = errors.New("super admin cannot be deleted")
 	ErrFillRequiredFields   = errors.New("username, password, and role are required fields")
-	ErrIdClaimNotFound      = errors.New("adminID claim not found in refresh token")
-	ErrRefreshNotFoundInDB  = errors.New("refresh token not found in the database")
-	ErrRefreshTokenExpired  = errors.New("refresh token is expired")
 )
 
 var (

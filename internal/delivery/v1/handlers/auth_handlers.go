@@ -101,10 +101,13 @@ func (h *AuthHandler) RefreshTokensHandler(w http.ResponseWriter, r *http.Reques
 
 	newAccessToken, newRefreshToken, err := h.AuthService.RefreshTokens(refreshToken)
 	if err != nil {
+		slog.Error("Error refreshing tokens:", utils.Err(err))
 		if err == errors.ErrRefreshTokenExpired {
 			utils.RespondWithErrorJSON(w, status.Unauthorized, errors.RefreshTokenExpired)
+		} else if err == errors.ErrRefreshNotFoundInDB {
+			utils.RespondWithErrorJSON(w, status.Unauthorized, errors.RefreshNotFoundInDB)
 		} else {
-			utils.RespondWithErrorJSON(w, status.Unauthorized, errors.InvalidRefreshToken)
+			utils.RespondWithErrorJSON(w, status.Unauthorized, err.Error())
 		}
 		return
 	}
