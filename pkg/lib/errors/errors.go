@@ -40,12 +40,14 @@ const (
 )
 
 var (
-	ErrInvalidCredentials   = errors.New("invalid credentials")
-	ErrAdminNotFound        = errors.New("admin not found")
-	ErrInvalidRefreshToken  = errors.New("invalid refresh token")
-	ErrAdminAlreadyExists   = errors.New("admin already exists")
-	ErrAdminCannotBeDeleted = errors.New("super admin cannot be deleted")
-	ErrFillRequiredFields   = errors.New("username, password, and role are required fields")
+	ErrInvalidCredentials     = errors.New("invalid credentials")
+	ErrAdminNotFound          = errors.New("admin not found")
+	ErrInvalidRefreshToken    = errors.New("invalid refresh token")
+	ErrAdminAlreadyExists     = errors.New("admin already exists")
+	ErrAdminCannotBeDeleted   = errors.New("super admin cannot be deleted")
+	ErrFillRequiredFields     = errors.New("username, password, and role are required fields")
+	ErrGettingTotalAdminCount = errors.New("error getting total admins count")
+	ErrGettingAdmins          = errors.New("error getting admins")
 )
 
 var (
